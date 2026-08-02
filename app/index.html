@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voldena DM</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Title Bar -->
+        <div class="title-bar liquid-glass">
+            <div class="title">
+                <div class="logo">V</div>
+                Voldena DM
+            </div>
+            <div class="window-controls">
+                <button id="minimize-btn"><svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg></button>
+                <button id="maximize-btn"><svg viewBox="0 0 24 24"><path d="M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12z"/></svg></button>
+                <button id="close-btn" class="close"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg></button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar liquid-glass">
+                <ul class="nav">
+                    <li class="active" data-page="downloads"><span class="icon">🚀</span> İndirmeler</li>
+                    <li data-page="extensions"><span class="icon">🧩</span> Eklentiler</li>
+                    <li data-page="settings"><span class="icon">⚙️</span> Ayarlar</li>
+                </ul>
+                <div class="sidebar-footer">
+                    <div class="theme-toggle" id="theme-toggle">
+                        <span>🌓 Tema Değiştir</span>
+                    </div>
+                    <button class="add-btn" id="open-modal-btn">+ Yeni URL Ekle</button>
+                </div>
+            </aside>
+
+            <!-- Pages -->
+            <main class="page-container">
+                <!-- Downloads Page -->
+                <div class="page active" id="page-downloads">
+                    <header class="page-header">
+                        <h1>İndirmeler</h1>
+                    </header>
+                    <div class="downloads-list" id="downloads-list">
+                        <!-- Welcome Message -->
+                        <div id="welcome-message" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center;">
+                            <div style="font-size: 72px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(167,139,250,0.4));">🚀</div>
+                            <h2 style="font-family: 'Segoe UI', sans-serif; font-weight: 600; font-size: 28px; margin-bottom: 12px; background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hoş Geldiniz!</h2>
+                            <p style="font-size: 16px; opacity: 0.8; max-width: 350px; line-height: 1.6;">Bugün ne indiriyoruz? 🎯<br>Bir bağlantı yapıştırın veya tarayıcıdan indirme başlatın ⚡</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extensions Page -->
+                <div class="page" id="page-extensions">
+                    <header class="page-header">
+                        <h1>Tarayıcı Eklentileri</h1>
+                    </header>
+                    <div class="extensions-grid">
+                        <div class="extension-card glass-panel">
+                            <div class="extension-icon" style="font-size: 40px;">⭕</div>
+                            <div class="extension-name">Opera / GX</div>
+                            <button class="install-btn" onclick="window.electronAPI.installExtension('opera')">Eklentiyi Kur</button>
+                        </div>
+                        <div class="extension-card glass-panel">
+                            <div class="extension-icon" style="font-size: 40px;">🦁</div>
+                            <div class="extension-name">Brave</div>
+                            <button class="install-btn" onclick="window.electronAPI.installExtension('brave')">Eklentiyi Kur</button>
+                        </div>
+                        <div class="extension-card glass-panel">
+                            <div class="extension-icon" style="font-size: 40px;">🌐</div>
+                            <div class="extension-name">Google Chrome</div>
+                            <button class="install-btn" onclick="window.electronAPI.installExtension('chrome')">Eklentiyi Kur</button>
+                        </div>
+                        <div class="extension-card glass-panel">
+                            <div class="extension-icon" style="font-size: 40px;">🌊</div>
+                            <div class="extension-name">Microsoft Edge</div>
+                            <button class="install-btn" onclick="window.electronAPI.installExtension('edge')">Eklentiyi Kur</button>
+                        </div>
+                        <div class="extension-card glass-panel">
+                            <div class="extension-icon" style="font-size: 40px;">🦊</div>
+                            <div class="extension-name">Mozilla Firefox</div>
+                            <button class="install-btn" onclick="window.electronAPI.installExtension('firefox')">Eklentiyi Kur</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div class="page" id="page-settings">
+                    <header class="page-header">
+                        <h1>Ayarlar</h1>
+                    </header>
+                    <div class="glass-panel" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                        <h3>İndirme Konumu</h3>
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <input type="text" class="input-field" value="C:\Users\Downloads\Voldena-DM" readonly style="margin: 0;">
+                            <button class="btn-secondary">Değiştir</button>
+                        </div>
+                        <h3 style="margin-top: 20px;">Bağlantı Sayısı (Parçalama)</h3>
+                        <select class="input-field" id="conn-limit" style="width: 300px; appearance: none;">
+                            <option value="8">8 Parça — 🐌 Çok Yavaş</option>
+                            <option value="16">16 Parça — 🐢 Yavaş</option>
+                            <option value="32">32 Parça — ⚡ Normal</option>
+                            <option value="64" selected>64 Parça — 🚀 Hızlı (Önerilen)</option>
+                            <option value="128">128 Parça — ⚡⚡ Çok Hızlı</option>
+                            <option value="256">256 Parça — 💀 Süper Hızlı (Riskli!)</option>
+                        </select>
+                        <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+                            <button id="risk-info-btn" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer; font-weight: bold;">i</button>
+                            <span style="font-size: 12px; opacity: 0.5;">256 Parça neden riskli?</span>
+                        </div>
+                        <div id="risk-tooltip" style="display: none; margin-top: 10px; padding: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; font-size: 13px; line-height: 1.5;">
+                            ⚠️ <strong>256 Parça Uyarısı:</strong> Bu kadar çok eşzamanlı bağlantı, sunucular tarafından DDoS saldırısı olarak algılanabilir. IP adresiniz geçici veya kalıcı olarak engellenebilir. Sadece güvendiğiniz ve hız sınırı olmayan sunucularda kullanın.
+                        </div>
+                        <h3 style="margin-top: 25px;">Uygulama</h3>
+                        <button class="btn-secondary" id="show-tour-btn" style="width: 250px;">🎓 Tanıtımı Tekrar Göster</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-content liquid-glass">
+            <h2>Yeni İndirme Ekle</h2>
+            <input type="text" class="input-field" id="manual-url" placeholder="https://ornek.com/dosya.zip">
+            <div class="modal-actions">
+                <button class="btn-secondary" id="close-modal-btn">İptal</button>
+                <button class="btn-primary" id="start-manual-btn">İndirmeyi Başlat</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+
+    <!-- Onboarding Wizard Overlay -->
+    <div id="onboarding-overlay" style="display:none; position:fixed; inset:0; z-index:9999; background: #0a0a1e; overflow: hidden;">
+        <!-- Animated Background -->
+        <div style="position:absolute; inset:0; overflow:hidden; pointer-events:none;">
+            <div class="ob-blob" style="position:absolute; width:300px; height:300px; border-radius:50%; background: radial-gradient(circle, rgba(167,139,250,0.3), transparent); top:-50px; left:-50px; animation: obFloat 8s ease-in-out infinite;"></div>
+            <div class="ob-blob" style="position:absolute; width:250px; height:250px; border-radius:50%; background: radial-gradient(circle, rgba(96,165,250,0.2), transparent); bottom:-50px; right:-50px; animation: obFloat 10s ease-in-out infinite reverse;"></div>
+            <div class="ob-blob" style="position:absolute; width:200px; height:200px; border-radius:50%; background: radial-gradient(circle, rgba(139,92,246,0.15), transparent); top:50%; left:50%; transform:translate(-50%,-50%); animation: obFloat 12s ease-in-out infinite;"></div>
+        </div>
+
+        <!-- Steps Container -->
+        <div id="onboarding-steps" style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+
+            <!-- Step 1: Welcome -->
+            <div class="ob-step active" data-step="0" style="text-align:center; max-width:500px; padding:40px;">
+                <img src="images/onboarding_welcome.png" style="width:320px; height:200px; object-fit:cover; border-radius:16px; margin-bottom:30px; box-shadow: 0 8px 32px rgba(167,139,250,0.3);">
+                <h1 style="font-size:32px; font-weight:700; margin-bottom:12px; background: linear-gradient(135deg, #a78bfa, #60a5fa, #c084fc); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Hoş Geldiniz! 🎉</h1>
+                <p style="font-size:16px; opacity:0.7; line-height:1.6; margin-bottom:30px;">Voldena-DM, dosyalarınızı ışık hızında indirmenizi sağlayan yeni nesil indirme yöneticisine hoş geldiniz.</p>
+                <button class="ob-btn-next" onclick="obNext()">Başlayalım →</button>
+            </div>
+
+            <!-- Step 2: Windows ile başlasın mı? -->
+            <div class="ob-step" data-step="1" style="text-align:center; max-width:500px; padding:40px;">
+                <div style="font-size:72px; margin-bottom:20px;">🖥️</div>
+                <h2 style="font-size:26px; font-weight:600; margin-bottom:12px;">Windows ile Başlasın mı?</h2>
+                <p style="font-size:15px; opacity:0.7; line-height:1.6; margin-bottom:30px;">Bilgisayarınız açıldığında Voldena-DM otomatik olarak arka planda çalışsın mı?</p>
+                <div style="display:flex; gap:16px; justify-content:center; margin-bottom:30px;">
+                    <label class="ob-toggle-card" id="autostart-yes">
+                        <input type="radio" name="autostart" value="yes"> 
+                        <div class="ob-toggle-inner">
+                            <span style="font-size:28px;">✅</span>
+                            <span>Evet, başlasın</span>
+                        </div>
+                    </label>
+                    <label class="ob-toggle-card" id="autostart-no">
+                        <input type="radio" name="autostart" value="no" checked>
+                        <div class="ob-toggle-inner">
+                            <span style="font-size:28px;">❌</span>
+                            <span>Hayır</span>
+                        </div>
+                    </label>
+                </div>
+                <button class="ob-btn-next" onclick="obNext()">Sonraki →</button>
+            </div>
+
+            <!-- Step 3: İndirme penceresi -->
+            <div class="ob-step" data-step="2" style="text-align:center; max-width:500px; padding:40px;">
+                <div style="font-size:72px; margin-bottom:20px;">📦</div>
+                <h2 style="font-size:26px; font-weight:600; margin-bottom:12px;">İndirme Penceresi</h2>
+                <p style="font-size:15px; opacity:0.7; line-height:1.6; margin-bottom:30px;">Her indirme başladığında ayrı bir ilerleme penceresi açılsın mı?</p>
+                <div style="display:flex; gap:16px; justify-content:center; margin-bottom:30px;">
+                    <label class="ob-toggle-card">
+                        <input type="radio" name="dlwindow" value="yes">
+                        <div class="ob-toggle-inner">
+                            <span style="font-size:28px;">🪟</span>
+                            <span>Evet, ayrı pencere</span>
+                        </div>
+                    </label>
+                    <label class="ob-toggle-card">
+                        <input type="radio" name="dlwindow" value="no" checked>
+                        <div class="ob-toggle-inner">
+                            <span style="font-size:28px;">📋</span>
+                            <span>Hayır, ana pencerede</span>
+                        </div>
+                    </label>
+                </div>
+                <button class="ob-btn-next" onclick="obNext()">Sonraki →</button>
+            </div>
+
+            <!-- Step 4: Tour - Intro -->
+            <div class="ob-step" data-step="3" style="text-align:center; max-width:550px; padding:40px;">
+                <img src="images/onboarding_speed.png" style="width:380px; height:220px; object-fit:cover; border-radius:16px; margin-bottom:24px; box-shadow: 0 8px 32px rgba(96,165,250,0.3);">
+                <h2 style="font-size:28px; font-weight:700; margin-bottom:12px; background: linear-gradient(135deg, #c084fc, #60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Işık Hızında İndirin ⚡</h2>
+                <p style="font-size:15px; opacity:0.7; line-height:1.7;">Voldena-DM, dosyalarınızı <strong>256 parçaya</strong> kadar bölerek eşzamanlı indirme yapar. Her parça ayrı bir kanaldan akar. Sonuç? <strong>Normal indirmenin 10-50 katı hız!</strong></p>
+                <div style="display:flex; gap:8px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+                    <span class="ob-speed-tag" style="background:rgba(239,68,68,0.2); color:#fca5a5;">🐌 8 Parça</span>
+                    <span class="ob-speed-tag" style="background:rgba(251,146,60,0.2); color:#fdba74;">🐢 16 Parça</span>
+                    <span class="ob-speed-tag" style="background:rgba(250,204,21,0.2); color:#fde047;">⚡ 32 Parça</span>
+                    <span class="ob-speed-tag" style="background:rgba(74,222,128,0.2); color:#86efac;">🚀 64 Parça</span>
+                    <span class="ob-speed-tag" style="background:rgba(96,165,250,0.2); color:#93c5fd;">⚡⚡ 128 Parça</span>
+                    <span class="ob-speed-tag" style="background:rgba(167,139,250,0.2); color:#c4b5fd;">💀 256 Parça</span>
+                </div>
+                <div style="margin-top:30px; display:flex; gap:12px; justify-content:center;">
+                    <button class="ob-btn-skip" onclick="obSkip()">Tanıtımı Atla</button>
+                    <button class="ob-btn-next" onclick="obNext()">Sonraki →</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Tour - Extensions -->
+            <div class="ob-step" data-step="4" style="text-align:center; max-width:550px; padding:40px;">
+                <img src="images/onboarding_extensions.png" style="width:380px; height:220px; object-fit:cover; border-radius:16px; margin-bottom:24px; box-shadow: 0 8px 32px rgba(139,92,246,0.3);">
+                <h2 style="font-size:26px; font-weight:700; margin-bottom:12px;">🧩 Tarayıcı Eklentileri</h2>
+                <p style="font-size:15px; opacity:0.7; line-height:1.7;">Eklentiler sayfasından <strong>Opera, Firefox ve Edge</strong> için tek tuşla eklenti kurabilirsiniz. Kurulum sonrası tarayıcınızdaki tüm indirmeler otomatik olarak Voldena-DM'e yönlendirilir!</p>
+                <div style="margin-top:30px; display:flex; gap:12px; justify-content:center;">
+                    <button class="ob-btn-skip" onclick="obSkip()">Tanıtımı Atla</button>
+                    <button class="ob-btn-next" onclick="obNext()">Sonraki →</button>
+                </div>
+            </div>
+
+            <!-- Step 6: Tour - Settings -->
+            <div class="ob-step" data-step="5" style="text-align:center; max-width:550px; padding:40px;">
+                <img src="images/onboarding_settings.png" style="width:380px; height:220px; object-fit:cover; border-radius:16px; margin-bottom:24px; box-shadow: 0 8px 32px rgba(167,139,250,0.3);">
+                <h2 style="font-size:26px; font-weight:700; margin-bottom:12px;">⚙️ Ayarlar</h2>
+                <p style="font-size:15px; opacity:0.7; line-height:1.7;"><strong>İndirme konumunu</strong> değiştirebilir, <strong>parçalama sayısını</strong> ayarlayabilirsiniz. 64 parça çoğu kullanıcı için ideal hızdır. Daha fazla hız istiyorsanız 128'e çıkabilirsiniz!</p>
+                <div style="margin-top:30px; display:flex; gap:12px; justify-content:center;">
+                    <button class="ob-btn-skip" onclick="obSkip()">Tanıtımı Atla</button>
+                    <button class="ob-btn-next" onclick="obNext()">Sonraki →</button>
+                </div>
+            </div>
+
+            <!-- Step 7: Ready! -->
+            <div class="ob-step" data-step="6" style="text-align:center; max-width:500px; padding:40px;">
+                <div style="font-size:80px; margin-bottom:20px;">🎉</div>
+                <h2 style="font-size:30px; font-weight:700; margin-bottom:12px; background: linear-gradient(135deg, #22c55e, #60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Her Şey Hazır!</h2>
+                <p style="font-size:16px; opacity:0.7; line-height:1.7; margin-bottom:30px;">Voldena-DM artık kullanıma hazır. Dosyalarınızı ışık hızında indirmeye başlayabilirsiniz! 🚀<br><br><span style="opacity:0.5; font-size:13px;">Bu tanıtımı istediğiniz zaman Ayarlar'dan tekrar görebilirsiniz.</span></p>
+                <button class="ob-btn-next" style="background: linear-gradient(135deg, #22c55e, #16a34a);" onclick="obFinish()">Hadi Başlayalım! 🚀</button>
+            </div>
+
+        </div>
+
+        <!-- Progress Dots -->
+        <div id="ob-dots" style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); display:flex; gap:8px;">
+            <span class="ob-dot active"></span>
+            <span class="ob-dot"></span>
+            <span class="ob-dot"></span>
+            <span class="ob-dot"></span>
+            <span class="ob-dot"></span>
+            <span class="ob-dot"></span>
+            <span class="ob-dot"></span>
+        </div>
+    </div>
+
+    <!-- Skip Confirmation Modal -->
+    <div id="skip-confirm" style="display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); display:none; align-items:center; justify-content:center;">
+        <div style="background:rgba(30,30,60,0.95); border:1px solid rgba(167,139,250,0.3); border-radius:16px; padding:30px; max-width:400px; text-align:center;">
+            <p style="font-size:15px; margin-bottom:20px; line-height:1.6;">Tanıtımı istediğiniz zaman <strong>Ayarlar → Tanıtımı Tekrar Göster</strong> butonundan tekrar görüntüleyebilirsiniz.</p>
+            <div style="display:flex; gap:12px; justify-content:center;">
+                <button class="ob-btn-skip" onclick="document.getElementById('skip-confirm').style.display='none'">Geri Dön</button>
+                <button class="ob-btn-next" onclick="obFinish()">Atla</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
