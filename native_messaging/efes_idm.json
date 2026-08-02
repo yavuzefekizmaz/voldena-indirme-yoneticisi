@@ -1,0 +1,9 @@
+{
+  "name": "com.voldena.dm",
+  "description": "Voldena DM Native Messaging Host",
+  "path": "C:\\Users\\Efesc\\OneDrive - istinye ?niversitesi\\Masa?st?\\Projeler\\Efes-IDM\\native_messaging\\host_wrapper.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*/*"
+  ]
+}
