@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Voldena DM Entegrasyonu",
+  "version": "1.0",
+  "description": "İndirme bağlantılarını otomatik olarak Voldena DM'e gönderir.",
+  "permissions": [
+    "downloads",
+    "nativeMessaging",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "voldena-dm@voldena.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}
