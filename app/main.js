@@ -21,9 +21,9 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true
     },
-    frame: false, // Custom frame for modern look
-    transparent: true, // For glassmorphism
-    backgroundColor: '#00000000'
+    frame: false,
+    backgroundColor: '#04060b',
+    roundedCorners: true
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));

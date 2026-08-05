@@ -48,7 +48,7 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background: transparent;
+    background-color: var(--bg-color);
     color: var(--text-main);
     overflow: hidden;
     user-select: none;
@@ -56,7 +56,7 @@ body {
     padding: 0;
     width: 100vw;
     height: 100vh;
-    transition: color 0.5s ease;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 /* Background Blobs for Liquid Glass Effect */
@@ -116,11 +116,8 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    border-radius: 14px;
+    border-radius: 10px;
     overflow: hidden;
-    background-color: var(--bg-color);
-    border: 1px solid var(--glass-border);
-    transition: background-color 0.5s ease;
 }
 
 /* Liquid Glass Component Class */
@@ -607,6 +604,29 @@ select.input-field option {
     background-color: var(--bg-color);
     color: var(--text-main);
     padding: 10px;
+}
+
+/* ============ Overlay Visibility Control ============ */
+.ob-overlay-hidden {
+    display: none !important;
+    pointer-events: none;
+}
+
+.ob-overlay-visible {
+    display: flex !important;
+    position: fixed;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    pointer-events: auto;
+}
+
+#onboarding-overlay.ob-overlay-visible {
+    z-index: 9999;
+    background: #080c14;
+    overflow-y: auto;
 }
 
 /* ============ Onboarding Wizard ============ */

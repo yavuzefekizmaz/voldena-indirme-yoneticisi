@@ -412,14 +412,25 @@ window.electronAPI.onDownloadCompleted((event, data) => {
     }
 });
 
+// ============ Overlay Helpers ============
+function showOverlay(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('ob-overlay-hidden');
+    el.classList.add('ob-overlay-visible');
+}
+function hideOverlay(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('ob-overlay-visible');
+    el.classList.add('ob-overlay-hidden');
+}
+
 // Extension helper function
 let pendingExtensionBrowser = null;
 window.installAndShowHelp = (browser) => {
     pendingExtensionBrowser = browser;
-    const modal = document.getElementById('ext-help-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-    }
+    showOverlay('ext-help-modal');
 };
 
 // Load paused downloads on startup
@@ -431,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (pendingExtensionBrowser) {
                 window.electronAPI.installExtension(pendingExtensionBrowser);
             }
-            document.getElementById('ext-help-modal').style.display = 'none';
+            hideOverlay('ext-help-modal');
         });
     }
     // Settings Logic - conn-limit
@@ -527,8 +538,7 @@ const obTotalSteps = 7;
 
 function showOnboarding() {
     obCurrentStep = 0;
-    const overlay = document.getElementById('onboarding-overlay');
-    overlay.style.display = 'flex';
+    showOverlay('onboarding-overlay');
     // Save onboarding completion immediately on first display so it never auto-opens again
     localStorage.setItem('voldena-onboarding-done', 'true');
     updateObStep();
@@ -564,8 +574,7 @@ window.obNext = () => {
 };
 
 window.obSkip = () => {
-    const confirm = document.getElementById('skip-confirm');
-    confirm.style.display = 'flex';
+    showOverlay('skip-confirm');
 };
 
 window.obFinish = () => {
@@ -592,8 +601,8 @@ window.obFinish = () => {
     localStorage.setItem('voldena-onboarding-done', 'true');
     
     // Close overlays
-    document.getElementById('onboarding-overlay').style.display = 'none';
-    document.getElementById('skip-confirm').style.display = 'none';
+    hideOverlay('onboarding-overlay');
+    hideOverlay('skip-confirm');
 };
 
 // Check if first run
