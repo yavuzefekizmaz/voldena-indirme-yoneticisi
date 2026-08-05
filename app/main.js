@@ -179,7 +179,7 @@ ipcMain.on('resume-download', (event, id) => {
 
 ipcMain.on('cancel-download', (event, arg) => {
     const id = (typeof arg === 'object' && arg !== null) ? arg.id : arg;
-    const deleteFile = (typeof arg === 'object' && arg !== null) ? arg.deleteFile !== false;
+    const deleteFile = (typeof arg === 'object' && arg !== null) ? arg.deleteFile !== false : true;
     
     const dl = downloader.downloads.get(id);
     if (dl) {
