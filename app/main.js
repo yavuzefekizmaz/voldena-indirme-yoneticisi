@@ -169,6 +169,13 @@ ipcMain.on('resume-download', (event, id) => {
 });
 
 ipcMain.on('cancel-download', (event, id) => {
+    const dl = downloader.downloads.get(id);
+    if (dl) {
+        const miniWin = downloadWindows.get(dl.url);
+        if (miniWin && !miniWin.isDestroyed()) {
+            miniWin.close();
+        }
+    }
     downloader.cancel(id);
 });
 
@@ -190,27 +197,18 @@ ipcMain.on('install-extension', (event, browser) => {
         // Opera için registry kaydı yap
         const operaCmd = `reg add "HKCU\\Software\\Google\\Chrome\\Extensions\\${operaId}" /v update_url /t REG_SZ /d "${chromeUrl}" /f`;
         exec(operaCmd, (err) => {
-            if (!err) {
-                console.log("Opera registry kaydı manuel tetiklendi.");
-                shell.openExternal('opera://extensions').catch(()=>{});
-            }
+            if (!err) console.log("Opera registry kaydı tetiklendi.");
         });
-    } else if (browser === 'chrome' || browser === 'brave') {
-        shell.openExternal('chrome://extensions').catch(()=>{});
-    } else if (browser === 'edge') {
-        shell.openExternal('edge://extensions').catch(()=>{});
     } else if (browser === 'firefox') {
         const firefoxExtId = 'voldena-dm@voldena.com';
         const firefoxCmd = `reg add "HKCU\\Software\\Mozilla\\Firefox\\Extensions" /v "${firefoxExtId}" /t REG_SZ /d "${firefoxXpiPath}" /f`;
         exec(firefoxCmd, (err) => {
-            if (!err) console.log("Firefox registry kaydı manuel tetiklendi.");
+            if (!err) console.log("Firefox registry kaydı tetiklendi.");
         });
     }
     
-    // Klasörü açmaya gerek kalmadı ama yine de yardımcı olması için kısa bir süre sonra gösterelim
-    setTimeout(() => {
-        shell.showItemInFolder(path.join(extDir, 'manifest.json'));
-    }, 500);
+    // Klasörü aç
+    shell.openPath(extDir);
 });
 
 // Single Instance Lock

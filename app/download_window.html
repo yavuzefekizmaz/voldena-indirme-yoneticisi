@@ -138,7 +138,10 @@
                 fill.classList.add('complete');
                 speedEl.textContent = '';
                 etaEl.textContent = '✅ Tamamlandı!';
-                document.getElementById('dl-filename').textContent += ' ✅';
+                const nameEl = document.getElementById('dl-filename');
+                if (!nameEl.textContent.includes('✅')) {
+                    nameEl.textContent += ' ✅';
+                }
             }
         });
 

@@ -79,7 +79,8 @@ class VoldenaDownloader {
                 chunks: [],
                 lastDownloaded: 0,
                 lastTime: Date.now(),
-                speed: 0
+                speed: 0,
+                startTime: Date.now()
             };
             this.downloads.set(id, dlState);
             
@@ -143,6 +144,26 @@ class VoldenaDownloader {
                 
                 if (dlState.status === 'downloading') {
                     dlState.status = 'completed';
+                    const durationMs = Date.now() - (dlState.startTime || Date.now());
+                    const durationSecs = Math.floor(durationMs / 1000);
+                    let durationText = '';
+                    if (durationSecs < 60) {
+                        durationText = `${durationSecs} sn`;
+                    } else {
+                        const mins = Math.floor(durationSecs / 60);
+                        const secs = durationSecs % 60;
+                        durationText = `${mins} dk ${secs} sn`;
+                    }
+                    
+                    if (dlState.window) {
+                        dlState.window.webContents.send('download-completed', {
+                            id: dlState.id,
+                            filename: dlState.filename,
+                            total: dlState.total,
+                            durationText: durationText,
+                            date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})
+                        });
+                    }
                     this.reportProgress(dlState, 100);
                     try { if (fs.existsSync(dlState.statePath)) fs.unlinkSync(dlState.statePath); } catch(e) {}
                 }
@@ -293,6 +314,26 @@ class VoldenaDownloader {
                     fileStream.end();
                     if(dlState.status === 'downloading') {
                         dlState.status = 'completed';
+                        const durationMs = Date.now() - (dlState.startTime || Date.now());
+                        const durationSecs = Math.floor(durationMs / 1000);
+                        let durationText = '';
+                        if (durationSecs < 60) {
+                            durationText = `${durationSecs} sn`;
+                        } else {
+                            const mins = Math.floor(durationSecs / 60);
+                            const secs = durationSecs % 60;
+                            durationText = `${mins} dk ${secs} sn`;
+                        }
+
+                        if (dlState.window) {
+                            dlState.window.webContents.send('download-completed', {
+                                id: dlState.id,
+                                filename: dlState.filename,
+                                total: dlState.total,
+                                durationText: durationText,
+                                date: new Date().toLocaleDateString('tr-TR') + ' ' + new Date().toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})
+                            });
+                        }
                         this.reportProgress(dlState, 100);
                     }
                     resolve();

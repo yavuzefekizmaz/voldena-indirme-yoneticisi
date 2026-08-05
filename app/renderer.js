@@ -36,6 +36,11 @@ navItems.forEach(item => {
         item.classList.add('active');
         const targetPage = document.getElementById(`page-${item.getAttribute('data-page')}`);
         targetPage.classList.add('active');
+        
+        // Render history if clicked history page
+        if (item.getAttribute('data-page') === 'history') {
+            renderHistory();
+        }
     });
 });
 
@@ -87,13 +92,15 @@ window.electronAPI.onDownloadProgress((event, data) => {
         const fill = item.querySelector('.progress-fill');
         const meta = item.querySelector('.meta-stats');
         const pauseBtn = item.querySelector('.pause-btn');
+        
+        // Update width
         fill.style.width = `${data.percentage}%`;
         
         const downloadedMB = (data.downloaded / (1024 * 1024)).toFixed(2);
         const totalMB = (data.total / (1024 * 1024)).toFixed(2);
         let speedText = data.speed && data.speed !== '0.00' ? ` • ${data.speed} MB/s` : '';
         
-        // ETA hesaplama
+        // ETA calculation
         let etaText = '';
         if (data.speed && parseFloat(data.speed) > 0 && data.total > data.downloaded) {
             const remainingBytes = data.total - data.downloaded;
@@ -117,9 +124,7 @@ window.electronAPI.onDownloadProgress((event, data) => {
 
         if (data.percentage >= 100) {
             pauseBtn.innerHTML = '✅';
-            pauseBtn.onclick = () => {
-                window.electronAPI.openFile(data.id);
-            };
+            item.setAttribute('data-status', 'completed');
             fill.style.background = 'linear-gradient(90deg, #22c55e, #16a34a)';
         }
     }
@@ -132,11 +137,8 @@ window.electronAPI.onDownloadPaused((event, data) => {
         const pauseBtn = item.querySelector('.pause-btn');
         const meta = item.querySelector('.meta-stats');
         pauseBtn.innerHTML = '▶️';
-        pauseBtn.onclick = () => {
-            window.electronAPI.resumeDownload(data.id);
-            pauseBtn.innerHTML = '⏸️';
-            pauseBtn.onclick = () => window.electronAPI.pauseDownload(data.id);
-        };
+        item.setAttribute('data-status', 'paused');
+        
         const downloadedMB = (data.downloaded / (1024 * 1024)).toFixed(2);
         const totalMB = (data.total / (1024 * 1024)).toFixed(2);
         const pct = data.total > 0 ? ((data.downloaded / data.total) * 100).toFixed(1) : '0.0';
@@ -179,6 +181,7 @@ function addDownloadItem(data) {
     const div = document.createElement('div');
     div.className = 'download-item glass-panel';
     div.id = `dl-${data.id}`;
+    div.setAttribute('data-status', 'downloading');
     
     div.innerHTML = `
         <div class="item-icon">📄</div>
@@ -197,12 +200,22 @@ function addDownloadItem(data) {
         </div>
     `;
 
-    // Butonlara event listener ekle (inline onclick yerine)
     const pauseBtn = div.querySelector('.pause-btn');
     const cancelBtn = div.querySelector('.cancel-btn');
 
     pauseBtn.addEventListener('click', () => {
-        window.electronAPI.pauseDownload(data.id);
+        const currentStatus = div.getAttribute('data-status');
+        if (currentStatus === 'completed') {
+            window.electronAPI.openFile(data.id);
+        } else if (currentStatus === 'paused') {
+            window.electronAPI.resumeDownload(data.id);
+            pauseBtn.innerHTML = '⏸️';
+            div.setAttribute('data-status', 'downloading');
+        } else if (currentStatus === 'downloading') {
+            window.electronAPI.pauseDownload(data.id);
+            pauseBtn.innerHTML = '▶️';
+            div.setAttribute('data-status', 'paused');
+        }
     });
 
     cancelBtn.addEventListener('click', () => {
@@ -211,6 +224,95 @@ function addDownloadItem(data) {
     
     list.insertBefore(div, list.firstChild);
 }
+
+// History Page Management
+function renderHistory() {
+    const list = document.getElementById('history-list');
+    const emptyMsg = document.getElementById('history-empty-message');
+    
+    let history = JSON.parse(localStorage.getItem('voldena-history') || '[]');
+    
+    if (history.length === 0) {
+        list.innerHTML = '';
+        emptyMsg.style.display = 'flex';
+        return;
+    }
+    
+    emptyMsg.style.display = 'none';
+    list.innerHTML = history.map(item => {
+        const sizeGB = (item.total / (1024 * 1024 * 1024));
+        const sizeFormatted = sizeGB >= 1 ? `${sizeGB.toFixed(2)} GB` : `${(item.total / (1024 * 1024)).toFixed(2)} MB`;
+        
+        return `
+            <div class="history-item">
+                <div class="history-info">
+                    <span class="history-filename">${item.filename}</span>
+                    <div class="history-meta">
+                        <span>Boyut: ${sizeFormatted}</span>
+                        <span>Süre: ${item.durationText}</span>
+                        <span>Tarih: ${item.date}</span>
+                    </div>
+                </div>
+                <div class="history-actions">
+                    <button class="btn-secondary" onclick="window.electronAPI.openFile('${item.id}')">Dosyayı Aç</button>
+                    <button class="btn-delete" onclick="deleteHistoryItem('${item.id}')">✖️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+window.deleteHistoryItem = (id) => {
+    let history = JSON.parse(localStorage.getItem('voldena-history') || '[]');
+    history = history.filter(item => item.id !== id);
+    localStorage.setItem('voldena-history', JSON.stringify(history));
+    renderHistory();
+};
+
+document.getElementById('clear-history-btn').addEventListener('click', () => {
+    localStorage.setItem('voldena-history', '[]');
+    renderHistory();
+});
+
+// Listen to download completed event
+window.electronAPI.onDownloadCompleted((event, data) => {
+    let history = JSON.parse(localStorage.getItem('voldena-history') || '[]');
+    // Prevent duplicate entries
+    if (!history.some(item => item.id === data.id)) {
+        history.unshift(data);
+        localStorage.setItem('voldena-history', JSON.stringify(history));
+    }
+    
+    // Update active download list item if it exists
+    const item = document.getElementById(`dl-${data.id}`);
+    if (item) {
+        const pauseBtn = item.querySelector('.pause-btn');
+        const meta = item.querySelector('.meta-stats');
+        const fill = item.querySelector('.progress-fill');
+        
+        const sizeGB = (data.total / (1024 * 1024 * 1024));
+        const sizeFormatted = sizeGB >= 1 ? `${sizeGB.toFixed(2)} GB` : `${(data.total / (1024 * 1024)).toFixed(2)} MB`;
+        
+        meta.textContent = `${sizeFormatted} / ${sizeFormatted} • 100% ✅ (Tamamlandı - ${data.durationText})`;
+        if (pauseBtn) {
+            pauseBtn.innerHTML = '✅';
+        }
+        item.setAttribute('data-status', 'completed');
+        if (fill) {
+            fill.style.width = '100%';
+            fill.style.background = 'linear-gradient(90deg, #22c55e, #16a34a)';
+        }
+    }
+});
+
+// Extension helper function
+window.installAndShowHelp = (browser) => {
+    const modal = document.getElementById('ext-help-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+    window.electronAPI.installExtension(browser);
+};
 
 // Load paused downloads on startup
 document.addEventListener('DOMContentLoaded', () => {
@@ -253,17 +355,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (dl.status === 'paused') {
                         meta.textContent = `${downloadedMB} MB / ${totalMB} MB • ${dl.percentage.toFixed(1)}% (Duraklatıldı)`;
                         pauseBtn.innerHTML = '▶️';
-                        pauseBtn.onclick = () => {
-                            window.electronAPI.resumeDownload(dl.id);
-                            pauseBtn.innerHTML = '⏸️';
-                            pauseBtn.onclick = () => window.electronAPI.pauseDownload(dl.id);
-                        };
+                        item.setAttribute('data-status', 'paused');
                     } else if (dl.status === 'completed') {
                         meta.textContent = `${downloadedMB} MB / ${totalMB} MB • 100% ✅`;
                         pauseBtn.innerHTML = '✅';
+                        item.setAttribute('data-status', 'completed');
                         fill.style.background = 'linear-gradient(90deg, #22c55e, #16a34a)';
                     } else {
                         meta.textContent = `${downloadedMB} MB / ${totalMB} MB • ${dl.percentage.toFixed(1)}%`;
+                        item.setAttribute('data-status', 'downloading');
                     }
                 }
             });
@@ -301,7 +401,7 @@ function updateObStep() {
     });
 }
 
-function obNext() {
+window.obNext = () => {
     const currentStep = document.querySelector(`.ob-step[data-step="${obCurrentStep}"]`);
     currentStep.classList.add('exiting');
     currentStep.classList.remove('active');
@@ -314,14 +414,14 @@ function obNext() {
             updateObStep();
         }
     }, 200);
-}
+};
 
-function obSkip() {
+window.obSkip = () => {
     const confirm = document.getElementById('skip-confirm');
     confirm.style.display = 'flex';
-}
+};
 
-function obFinish() {
+window.obFinish = () => {
     // Save settings
     const autostart = document.querySelector('input[name="autostart"]:checked');
     const dlwindow = document.querySelector('input[name="dlwindow"]:checked');
@@ -334,7 +434,7 @@ function obFinish() {
     // Close overlays
     document.getElementById('onboarding-overlay').style.display = 'none';
     document.getElementById('skip-confirm').style.display = 'none';
-}
+};
 
 // Check if first run
 if (!localStorage.getItem('voldena-onboarding-done')) {

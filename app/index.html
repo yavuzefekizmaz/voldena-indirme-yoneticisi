@@ -18,7 +18,22 @@
         <!-- Title Bar -->
         <div class="title-bar liquid-glass">
             <div class="title">
-                <div class="logo">V</div>
+                <div class="logo">
+                    <svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4L10 18C10.5 19 11.5 20 12 20C12.5 20 13.5 19 14 18L20 4" stroke="url(#logo-grad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 4L12 13L16 4" stroke="url(#logo-grad-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+                        <defs>
+                            <linearGradient id="logo-grad" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#3b82f6"/>
+                                <stop stop-color="#8b5cf6"/>
+                            </linearGradient>
+                            <linearGradient id="logo-grad-accent" x1="8" y1="4" x2="16" y2="13" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#60a5fa"/>
+                                <stop stop-color="#a78bfa"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
                 Voldena DM
             </div>
             <div class="window-controls">
@@ -33,6 +48,7 @@
             <aside class="sidebar liquid-glass">
                 <ul class="nav">
                     <li class="active" data-page="downloads"><span class="icon">🚀</span> İndirmeler</li>
+                    <li data-page="history"><span class="icon">📜</span> Geçmiş</li>
                     <li data-page="extensions"><span class="icon">🧩</span> Eklentiler</li>
                     <li data-page="settings"><span class="icon">⚙️</span> Ayarlar</li>
                 </ul>
@@ -61,6 +77,22 @@
                     </div>
                 </div>
 
+                <!-- History Page -->
+                <div class="page" id="page-history">
+                    <header class="page-header">
+                        <h1>İndirme Geçmişi</h1>
+                        <button class="btn-secondary" id="clear-history-btn" style="font-size: 13px; padding: 8px 16px;">Geçmişi Temizle</button>
+                    </header>
+                    <div class="history-list-container">
+                        <div class="history-list" id="history-list"></div>
+                        <div id="history-empty-message" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center;">
+                            <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;">📜</div>
+                            <h2 style="font-weight: 600; font-size: 20px; margin-bottom: 8px; opacity: 0.6;">Geçmiş Temiz!</h2>
+                            <p style="font-size: 14px; opacity: 0.5; max-width: 300px;">Henüz tamamlanmış bir indirme bulunmuyor.</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Extensions Page -->
                 <div class="page" id="page-extensions">
                     <header class="page-header">
@@ -70,27 +102,27 @@
                         <div class="extension-card glass-panel">
                             <div class="extension-icon" style="font-size: 40px;">⭕</div>
                             <div class="extension-name">Opera / GX</div>
-                            <button class="install-btn" onclick="window.electronAPI.installExtension('opera')">Eklentiyi Kur</button>
+                            <button class="install-btn" onclick="installAndShowHelp('opera')">Eklentiyi Kur</button>
                         </div>
                         <div class="extension-card glass-panel">
                             <div class="extension-icon" style="font-size: 40px;">🦁</div>
                             <div class="extension-name">Brave</div>
-                            <button class="install-btn" onclick="window.electronAPI.installExtension('brave')">Eklentiyi Kur</button>
+                            <button class="install-btn" onclick="installAndShowHelp('brave')">Eklentiyi Kur</button>
                         </div>
                         <div class="extension-card glass-panel">
                             <div class="extension-icon" style="font-size: 40px;">🌐</div>
                             <div class="extension-name">Google Chrome</div>
-                            <button class="install-btn" onclick="window.electronAPI.installExtension('chrome')">Eklentiyi Kur</button>
+                            <button class="install-btn" onclick="installAndShowHelp('chrome')">Eklentiyi Kur</button>
                         </div>
                         <div class="extension-card glass-panel">
                             <div class="extension-icon" style="font-size: 40px;">🌊</div>
                             <div class="extension-name">Microsoft Edge</div>
-                            <button class="install-btn" onclick="window.electronAPI.installExtension('edge')">Eklentiyi Kur</button>
+                            <button class="install-btn" onclick="installAndShowHelp('edge')">Eklentiyi Kur</button>
                         </div>
                         <div class="extension-card glass-panel">
                             <div class="extension-icon" style="font-size: 40px;">🦊</div>
                             <div class="extension-name">Mozilla Firefox</div>
-                            <button class="install-btn" onclick="window.electronAPI.installExtension('firefox')">Eklentiyi Kur</button>
+                            <button class="install-btn" onclick="installAndShowHelp('firefox')">Eklentiyi Kur</button>
                         </div>
                     </div>
                 </div>
@@ -282,6 +314,37 @@
             <div style="display:flex; gap:12px; justify-content:center;">
                 <button class="ob-btn-skip" onclick="document.getElementById('skip-confirm').style.display='none'">Geri Dön</button>
                 <button class="ob-btn-next" onclick="obFinish()">Atla</button>
+            </div>
+        </div>
+    <!-- Extension Help Modal -->
+    <div id="ext-help-modal" style="display:none; position:fixed; inset:0; z-index:10001; background:rgba(0,0,0,0.65); backdrop-filter:blur(10px); align-items:center; justify-content:center;">
+        <div class="glass-panel" style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:24px; padding:32px; max-width:520px; flex-direction:column; align-items:stretch; gap:20px; box-shadow:var(--glass-shadow); color:var(--text-main);">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="font-weight:700; font-size:22px; background:linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Eklenti Nasıl Kurulur? 🧩</h2>
+                <button onclick="document.getElementById('ext-help-modal').style.display='none'" style="background:transparent; border:none; color:var(--text-muted); font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:16px; font-size:14px; line-height:1.6;">
+                <p style="opacity:0.9;">Windows güvenlik protokolleri nedeniyle eklenti kurulum klasörü açılmıştır. Lütfen tarayıcınıza kurmak için aşağıdaki 3 basit adımı uygulayın:</p>
+                
+                <div style="display:flex; gap:12px; align-items:start;">
+                    <div style="background:var(--accent); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">1</div>
+                    <div>Tarayıcınızın <strong>Uzantılar / Eklentiler</strong> sayfasını açın (örneğin <code>chrome://extensions</code> veya <code>opera://extensions</code> adresine gidin).</div>
+                </div>
+                
+                <div style="display:flex; gap:12px; align-items:start;">
+                    <div style="background:var(--accent); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">2</div>
+                    <div>Sayfanın sağ üst köşesindeki <strong>Geliştirici Modu (Developer Mode)</strong> seçeneğini aktif hâle getirin.</div>
+                </div>
+                
+                <div style="display:flex; gap:12px; align-items:start;">
+                    <div style="background:var(--accent); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">3</div>
+                    <div>Açılan klasördeki <strong><code>extension</code></strong> klasörünü fareyle sürükleyip tarayıcınızın uzantılar sayfasına bırakın (veya <i>Paketlenmemiş öğe yükle</i> diyerek bu klasörü seçin).</div>
+                </div>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                <button onclick="document.getElementById('ext-help-modal').style.display='none'" style="background:linear-gradient(135deg, var(--accent), var(--gradient-2)); color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:600; cursor:pointer;">Anladım, Klasörü Göster</button>
             </div>
         </div>
     </div>
