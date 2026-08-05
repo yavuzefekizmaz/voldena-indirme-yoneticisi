@@ -328,9 +328,6 @@ function addDownloadItem(data) {
     
     list.insertBefore(div, list.firstChild);
 }
-    
-    list.insertBefore(div, list.firstChild);
-}
 
 // History Page Management
 function renderHistory() {

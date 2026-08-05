@@ -22,8 +22,7 @@ function createWindow() {
       contextIsolation: true
     },
     frame: false,
-    backgroundColor: '#04060b',
-    roundedCorners: true
+    backgroundColor: '#04060b'
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));

@@ -57,6 +57,7 @@ body {
     width: 100vw;
     height: 100vh;
     transition: background-color 0.5s ease, color 0.5s ease;
+    -webkit-app-region: no-drag;
 }
 
 /* Background Blobs for Liquid Glass Effect */
