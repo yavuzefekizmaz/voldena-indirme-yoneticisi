@@ -107,6 +107,7 @@ class VoldenaDownloader {
             const finalName = filename || nameFromUrl;
             const destPath = path.join(this.downloadDir, finalName);
             dlState.destPath = destPath;
+            dlState.filename = finalName;
 
             // Update UI with real filename
             if (dlState.window) {
@@ -435,7 +436,7 @@ class VoldenaDownloader {
         }
     }
 
-    cancel(id) {
+    cancel(id, deleteFile = true) {
         if (this.downloads.has(id)) {
             const dl = this.downloads.get(id);
             dl.status = 'cancelled';
@@ -457,7 +458,9 @@ class VoldenaDownloader {
             const destPath = dl.destPath;
             const statePath = dl.statePath;
             setTimeout(() => {
-                try { if (destPath && fs.existsSync(destPath)) fs.unlinkSync(destPath); } catch(e) {}
+                if (deleteFile) {
+                    try { if (destPath && fs.existsSync(destPath)) fs.unlinkSync(destPath); } catch(e) {}
+                }
                 try { if (statePath && fs.existsSync(statePath)) fs.unlinkSync(statePath); } catch(e) {}
             }, 100);
             

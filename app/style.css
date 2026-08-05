@@ -21,23 +21,23 @@
 }
 
 [data-theme="light"] {
-    --bg-color: #f1f5f9;
+    --bg-color: #f8fafc;
     --glass-bg: #ffffff;
-    --glass-border: #e2e8f0;
-    --glass-shadow: 0 4px 20px 0 rgba(15, 23, 42, 0.05);
-    --glass-highlight: #f8fafc;
+    --glass-border: rgba(15, 23, 42, 0.08);
+    --glass-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    --glass-highlight: #f1f5f9;
     --text-main: #0f172a;
-    --text-muted: #475569;
+    --text-muted: #64748b;
     --accent: #2563eb;
     --accent-hover: #1d4ed8;
-    --gradient-1: #2563eb;
-    --gradient-2: #4f46e5;
-    --blob-1: rgba(219, 234, 254, 0.5);
-    --blob-2: rgba(233, 213, 255, 0.5);
-    --blob-3: rgba(241, 245, 249, 0.3);
+    --gradient-1: #3b82f6;
+    --gradient-2: #1d4ed8;
+    --blob-1: rgba(186, 230, 253, 0.4);
+    --blob-2: rgba(224, 242, 254, 0.4);
+    --blob-3: rgba(241, 245, 249, 0.2);
     --card-bg: #ffffff;
-    --card-border: #e2e8f0;
-    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    --card-border: rgba(15, 23, 42, 0.08);
+    --card-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
 }
 
 * {
@@ -306,6 +306,8 @@ body {
 .page-container {
     flex: 1;
     position: relative;
+    background: var(--bg-color);
+    transition: background 0.5s ease;
 }
 
 .page {
@@ -318,6 +320,7 @@ body {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 
 .page.active {
@@ -366,7 +369,8 @@ body {
 .downloads-list {
     flex: 1;
     overflow-y: auto;
-    padding-right: 10px;
+    padding: 6px;
+    margin: -6px;
 }
 
 .downloads-list::-webkit-scrollbar {
@@ -722,7 +726,8 @@ select.input-field option {
 .history-list-container {
     flex: 1;
     overflow-y: auto;
-    padding-right: 10px;
+    padding: 6px;
+    margin: -6px;
 }
 
 .history-list {

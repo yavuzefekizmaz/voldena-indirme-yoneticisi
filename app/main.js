@@ -177,7 +177,10 @@ ipcMain.on('resume-download', (event, id) => {
     downloader.resume(id, mainWindow);
 });
 
-ipcMain.on('cancel-download', (event, id) => {
+ipcMain.on('cancel-download', (event, arg) => {
+    const id = (typeof arg === 'object' && arg !== null) ? arg.id : arg;
+    const deleteFile = (typeof arg === 'object' && arg !== null) ? arg.deleteFile !== false;
+    
     const dl = downloader.downloads.get(id);
     if (dl) {
         const miniWin = downloadWindows.get(dl.url);
@@ -185,7 +188,7 @@ ipcMain.on('cancel-download', (event, id) => {
             miniWin.close();
         }
     }
-    downloader.cancel(id);
+    downloader.cancel(id, deleteFile);
 });
 
 ipcMain.on('open-file', (event, id) => {

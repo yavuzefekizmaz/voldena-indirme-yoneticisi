@@ -119,13 +119,16 @@ window.electronAPI.onDownloadProgress((event, data) => {
             }
         }
         
-        meta.textContent = `${downloadedMB} MB / ${totalMB} MB • ${data.percentage.toFixed(1)}%${speedText}${etaText}`;
         meta.style.color = '';
 
         if (data.percentage >= 100) {
             pauseBtn.innerHTML = '✅';
             item.setAttribute('data-status', 'completed');
             fill.style.background = 'linear-gradient(90deg, #22c55e, #16a34a)';
+            meta.textContent = `${downloadedMB} MB / ${totalMB} MB • 100% ✅ (Tamamlandı)`;
+        } else {
+            fill.style.background = ''; // reset to default CSS gradient
+            meta.textContent = `${downloadedMB} MB / ${totalMB} MB • ${data.percentage.toFixed(1)}%${speedText}${etaText}`;
         }
     }
 });
@@ -219,7 +222,63 @@ function addDownloadItem(data) {
     });
 
     cancelBtn.addEventListener('click', () => {
-        window.electronAPI.cancelDownload(data.id);
+        const currentStatus = div.getAttribute('data-status');
+        
+        const modal = document.getElementById('confirm-modal');
+        const title = document.getElementById('confirm-title');
+        const desc = document.getElementById('confirm-desc');
+        const chkContainer = document.getElementById('confirm-checkbox-container');
+        const chk = document.getElementById('confirm-delete-file-chk');
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const cancelBtnModal = document.getElementById('confirm-cancel-btn');
+        
+        // Reset checkbox
+        chk.checked = false;
+        
+        if (currentStatus === 'completed') {
+            title.textContent = 'Dosya Silinsin mi?';
+            desc.textContent = `"${data.filename || 'Dosya'}" indirmeler listesinden kaldırılacak. Bilgisayarınızdaki indirilmiş dosyayı da silmek istiyor musunuz?`;
+            chkContainer.style.display = 'none'; // No checkbox needed
+            okBtn.textContent = 'Evet';
+            cancelBtnModal.textContent = 'Hayır';
+        } else {
+            title.textContent = 'İndirmeyi İptal Et';
+            desc.textContent = `"${data.filename || 'Dosya'}" indirmesi iptal edilecek. Listeden kaldırılsın mı?`;
+            chkContainer.style.display = 'flex'; // Show checkbox
+            okBtn.textContent = 'Evet';
+            cancelBtnModal.textContent = 'Hayır';
+        }
+        
+        modal.classList.add('active');
+        
+        // Clone buttons to clear previous listeners
+        const newOk = okBtn.cloneNode(true);
+        const newCancel = cancelBtnModal.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOk, okBtn);
+        cancelBtnModal.parentNode.replaceChild(newCancel, cancelBtnModal);
+        
+        newCancel.addEventListener('click', () => {
+            modal.classList.remove('active');
+            if (currentStatus === 'completed') {
+                // If it's a completed task and they click No, we remove it from list but do NOT delete the file
+                window.electronAPI.cancelDownload({ id: data.id, deleteFile: false });
+                div.remove();
+            }
+        });
+        
+        newOk.addEventListener('click', () => {
+            modal.classList.remove('active');
+            if (currentStatus === 'completed') {
+                // Clicked Yes for completed file: delete task and file
+                window.electronAPI.cancelDownload({ id: data.id, deleteFile: true });
+                div.remove();
+            } else {
+                // Active/Paused download: cancel task and delete file if chk is checked
+                const deleteFile = chk.checked;
+                window.electronAPI.cancelDownload({ id: data.id, deleteFile: deleteFile });
+                div.remove();
+            }
+        });
     });
     
     list.insertBefore(div, list.firstChild);

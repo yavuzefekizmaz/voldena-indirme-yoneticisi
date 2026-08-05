@@ -20,18 +20,7 @@
             <div class="title">
                 <div class="logo">
                     <svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 4L10 18C10.5 19 11.5 20 12 20C12.5 20 13.5 19 14 18L20 4" stroke="url(#logo-grad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8 4L12 13L16 4" stroke="url(#logo-grad-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
-                        <defs>
-                            <linearGradient id="logo-grad" x1="4" y1="4" x2="20" y2="20" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#3b82f6"/>
-                                <stop stop-color="#8b5cf6"/>
-                            </linearGradient>
-                            <linearGradient id="logo-grad-accent" x1="8" y1="4" x2="16" y2="13" gradientUnits="userSpaceOnUse">
-                                <stop stop-color="#60a5fa"/>
-                                <stop stop-color="#a78bfa"/>
-                            </linearGradient>
-                        </defs>
+                        <path d="M4 5L12 19L20 5" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
                 Voldena DM
@@ -70,7 +59,11 @@
                     <div class="downloads-list" id="downloads-list">
                         <!-- Welcome Message -->
                         <div id="welcome-message" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center;">
-                            <div style="font-size: 72px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(167,139,250,0.4));">🚀</div>
+                            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59,130,246,0.35));">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
                             <h2 style="font-family: 'Segoe UI', sans-serif; font-weight: 600; font-size: 28px; margin-bottom: 12px; background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Hoş Geldiniz!</h2>
                             <p style="font-size: 16px; opacity: 0.8; max-width: 350px; line-height: 1.6;">Bugün ne indiriyoruz? 🎯<br>Bir bağlantı yapıştırın veya tarayıcıdan indirme başlatın ⚡</p>
                         </div>
@@ -326,9 +319,11 @@
                 <button class="ob-btn-next" onclick="obFinish()">Atla</button>
             </div>
         </div>
+    </div>
+
     <!-- Extension Help Modal -->
     <div id="ext-help-modal" style="display:none; position:fixed; inset:0; z-index:10001; background:rgba(0,0,0,0.65); backdrop-filter:blur(10px); align-items:center; justify-content:center;">
-        <div class="glass-panel" style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:24px; padding:32px; max-width:520px; flex-direction:column; align-items:stretch; gap:20px; box-shadow:var(--glass-shadow); color:var(--text-main);">
+        <div class="glass-panel" style="background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:24px; padding:32px; max-width:520px; display:flex; flex-direction:column; align-items:stretch; gap:20px; box-shadow:var(--glass-shadow); color:var(--text-main);">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h2 style="font-weight:700; font-size:22px; background:linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Eklenti Nasıl Kurulur? 🧩</h2>
                 <button onclick="document.getElementById('ext-help-modal').style.display='none'" style="background:transparent; border:none; color:var(--text-muted); font-size:24px; cursor:pointer; line-height:1;">&times;</button>
@@ -355,6 +350,24 @@
             
             <div style="display:flex; justify-content:flex-end; margin-top:10px;">
                 <button onclick="document.getElementById('ext-help-modal').style.display='none'" style="background:linear-gradient(135deg, var(--accent), var(--gradient-2)); color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:600; cursor:pointer;">Anladım, Klasörü Göster</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-content liquid-glass" style="max-width: 440px;">
+            <h2 id="confirm-title" style="font-size: 20px; font-weight: 700;">Görevi Kaldır</h2>
+            <p id="confirm-desc" style="font-size: 14px; opacity: 0.8; line-height: 1.6; margin-bottom: 20px;"></p>
+            
+            <div id="confirm-checkbox-container" style="display: none; align-items: center; gap: 8px; margin-bottom: 20px;">
+                <input type="checkbox" id="confirm-delete-file-chk" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="confirm-delete-file-chk" style="font-size: 14px; cursor: pointer;">Dosyayı bilgisayardan da sil</label>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-secondary" id="confirm-cancel-btn">Hayır</button>
+                <button class="btn-primary" id="confirm-ok-btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); border: none;">Evet</button>
             </div>
         </div>
     </div>
