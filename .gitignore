@@ -1,4 +1,4 @@
-﻿# BaÄŸÄ±mlÄ±lÄ±klar ve derleme dosyalarÄ±
+# BaÄŸÄ±mlÄ±lÄ±klar ve derleme dosyalarÄ±
 node_modules/
 dist/
 dist-electron/
@@ -10,3 +10,10 @@ obj/
 .vscode/
 .idea/
 .DS_Store
+
+# Test ve gecici veri klasorleri (Sadece yerelde kalacak)
+live_dev_data/
+live_resume_test/
+tmp_electron_data/
+voldena_fresh_test/
+voldena_portable_data/
