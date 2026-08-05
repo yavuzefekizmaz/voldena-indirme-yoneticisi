@@ -6,53 +6,58 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background: #0b1120;
             color: #f8fafc;
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
             -webkit-app-region: drag;
         }
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 16px;
-            background: rgba(15, 23, 42, 0.8);
+            padding: 8px 14px;
+            background: rgba(15, 23, 42, 0.9);
             border-bottom: 1px solid rgba(255,255,255,0.06);
         }
         .header h3 {
             font-size: 13px;
-            font-weight: 500;
-            opacity: 0.8;
+            font-weight: 600;
+            color: #3b82f6;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .close-btn {
             -webkit-app-region: no-drag;
             background: none;
             border: none;
             color: #94a3b8;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
         }
         .close-btn:hover { background: rgba(239,68,68,0.2); color: #ef4444; }
         .content {
             flex: 1;
-            padding: 20px;
+            padding: 12px 14px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            gap: 14px;
+            justify-content: space-between;
         }
         .filename {
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #f1f5f9;
         }
         .progress-bar {
             width: 100%;
@@ -60,11 +65,12 @@
             background: rgba(255,255,255,0.08);
             border-radius: 4px;
             overflow: hidden;
+            margin: 6px 0;
         }
         .progress-fill {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #7c3aed, #6366f1, #60a5fa);
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
             border-radius: 4px;
             transition: width 0.3s ease;
         }
@@ -72,18 +78,67 @@
             background: linear-gradient(90deg, #22c55e, #16a34a);
         }
         .stats {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
-        .speed { color: #60a5fa; font-weight: 500; }
-        .eta { color: #a78bfa; }
+        .speed { color: #60a5fa; font-weight: 600; }
+        .eta { color: #94a3b8; }
+        
+        .actions-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 6px;
+            -webkit-app-region: no-drag;
+        }
+        .mini-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #f1f5f9;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .mini-btn:hover {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .mini-btn-success {
+            background: #16a34a;
+            color: white;
+            border: none;
+        }
+        .mini-btn-success:hover {
+            background: #22c55e;
+        }
+        .completion-banner {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4ade80;
+            font-weight: 600;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h3>⚡ Voldena-DM</h3>
+        <h3>📥 Voldena-DM</h3>
         <button class="close-btn" onclick="window.close()">✕</button>
     </div>
     <div class="content">
@@ -92,23 +147,68 @@
             <div class="progress-fill" id="dl-fill"></div>
         </div>
         <div class="stats">
-            <span id="dl-size">0 MB / 0 MB</span>
+            <span id="dl-size">0 MB / 0 MB (0%)</span>
             <span>
-                <span class="speed" id="dl-speed"></span>
+                <span class="speed" id="dl-speed">0 MB/s</span>
                 <span class="eta" id="dl-eta"></span>
             </span>
+        </div>
+        
+        <div class="actions-bar" id="active-actions">
+            <button class="mini-btn" id="pause-btn">⏸️ Duraklat</button>
+            <span id="status-text" style="font-size: 11px; opacity: 0.7;">İndiriliyor</span>
+        </div>
+
+        <div class="completion-banner" id="complete-banner">
+            <span>🎉 İndirme tamamlanmıştır!</span>
+            <div style="display:flex; gap:6px;">
+                <button class="mini-btn mini-btn-success" id="open-file-btn" title="İndirilen Dosyayı Aç">✅ Dosyayı Aç</button>
+                <button class="mini-btn" onclick="window.close()">Tamam</button>
+            </div>
         </div>
     </div>
 
     <script>
         const { ipcRenderer } = require('electron');
+        let currentDlId = null;
+        let isPaused = false;
 
         ipcRenderer.on('dl-info', (event, data) => {
+            currentDlId = data.id;
             document.getElementById('dl-filename').textContent = data.filename || 'İndiriliyor...';
-            document.title = `${data.filename} - Voldena-DM`;
+            document.title = `${data.filename || 'İndirme'} - Voldena-DM`;
         });
 
+        const pauseBtn = document.getElementById('pause-btn');
+        pauseBtn.addEventListener('click', () => {
+            if (!currentDlId) return;
+            if (isPaused) {
+                ipcRenderer.send('resume-download', currentDlId);
+                pauseBtn.textContent = '⏸️ Duraklat';
+                document.getElementById('status-text').textContent = 'İndiriliyor';
+                isPaused = false;
+            } else {
+                ipcRenderer.send('pause-download', currentDlId);
+                pauseBtn.textContent = '▶️ Başlat';
+                document.getElementById('status-text').textContent = 'Duraklatıldı';
+                isPaused = true;
+            }
+        });
+
+        document.getElementById('open-file-btn').addEventListener('click', () => {
+            if (currentDlId) ipcRenderer.send('open-file', currentDlId);
+        });
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 MB';
+            const gb = bytes / (1024 * 1024 * 1024);
+            if (gb >= 1) return `${gb.toFixed(2)} GB`;
+            const mb = bytes / (1024 * 1024);
+            return `${mb.toFixed(2)} MB`;
+        }
+
         ipcRenderer.on('dl-progress', (event, data) => {
+            if (!currentDlId) currentDlId = data.id;
             const fill = document.getElementById('dl-fill');
             const sizeEl = document.getElementById('dl-size');
             const speedEl = document.getElementById('dl-speed');
@@ -116,9 +216,9 @@
 
             fill.style.width = `${data.percentage}%`;
 
-            const dlMB = (data.downloaded / (1024 * 1024)).toFixed(2);
-            const totalMB = (data.total / (1024 * 1024)).toFixed(2);
-            sizeEl.textContent = `${dlMB} MB / ${totalMB} MB (${data.percentage.toFixed(1)}%)`;
+            const dlStr = formatBytes(data.downloaded);
+            const totalStr = formatBytes(data.total);
+            sizeEl.textContent = `${dlStr} / ${totalStr} (${data.percentage.toFixed(1)}%)`;
 
             if (data.speed && data.speed !== '0.00') {
                 speedEl.textContent = `${data.speed} MB/s`;
@@ -137,17 +237,15 @@
             if (data.percentage >= 100) {
                 fill.classList.add('complete');
                 speedEl.textContent = '';
-                etaEl.textContent = '✅ Tamamlandı!';
-                const nameEl = document.getElementById('dl-filename');
-                if (!nameEl.textContent.includes('✅')) {
-                    nameEl.textContent += ' ✅';
-                }
+                etaEl.textContent = '';
+                document.getElementById('active-actions').style.display = 'none';
+                document.getElementById('complete-banner').style.display = 'flex';
             }
         });
 
         ipcRenderer.on('dl-error', (event, data) => {
             document.getElementById('dl-speed').textContent = '';
-            document.getElementById('dl-eta').textContent = '❌ ' + data.message;
+            document.getElementById('dl-eta').textContent = '⚠️ ' + data.message;
             document.getElementById('dl-eta').style.color = '#ef4444';
         });
     </script>

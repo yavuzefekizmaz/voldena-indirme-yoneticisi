@@ -395,8 +395,19 @@ class VoldenaDownloader {
     }
 
     reportError(dlState, errorMessage) {
+        let userErrMsg = errorMessage || 'Bağlantı hatası oluştu, lütfen tekrar deneyin.';
+        if (typeof userErrMsg === 'string') {
+            const lower = userErrMsg.toLowerCase();
+            if (lower.includes('timeout') || lower.includes('etimedout')) {
+                userErrMsg = 'Bağlantı zaman aşımına uğradı, lütfen tekrar deneyin.';
+            } else if (lower.includes('enoent')) {
+                userErrMsg = 'Dosya erişim hatası oluştu veya hedef dizin bulunamadı.';
+            } else if (lower.includes('enospc')) {
+                userErrMsg = 'Diskte yeterli boş alan bulunmuyor!';
+            }
+        }
         if (dlState.window) {
-            dlState.window.webContents.send('download-error', { id: dlState.id, message: errorMessage });
+            dlState.window.webContents.send('download-error', { id: dlState.id, message: userErrMsg });
         }
     }
 
@@ -414,7 +425,7 @@ class VoldenaDownloader {
             }
             
             for (const stream of dl.streams) {
-                if (stream) stream.end();
+                if (stream && !stream.destroyed) stream.destroy();
             }
             dl.streams = [];
             this.saveState(dl);
@@ -429,7 +440,8 @@ class VoldenaDownloader {
     resume(id, window) {
         if (this.downloads.has(id)) {
             const dl = this.downloads.get(id);
-            if (dl.status === 'paused') {
+            if (dl.status === 'paused' || dl.status === 'error') {
+                dl.status = 'downloading';
                 dl.window = window;
                 this.startDownload(dl.url, dl.filename, window, dl.id, dl.connections);
             }
@@ -450,7 +462,7 @@ class VoldenaDownloader {
             }
             
             for (const stream of dl.streams) {
-                if (stream) stream.end();
+                if (stream && !stream.destroyed) stream.destroy();
             }
             dl.streams = [];
             

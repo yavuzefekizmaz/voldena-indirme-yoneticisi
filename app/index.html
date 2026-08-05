@@ -168,9 +168,19 @@
 
     <!-- Modal -->
     <div class="modal-overlay" id="add-modal">
-        <div class="modal-content liquid-glass">
-            <h2>Yeni İndirme Ekle</h2>
-            <input type="text" class="input-field" id="manual-url" placeholder="https://ornek.com/dosya.zip">
+        <div class="modal-content liquid-glass" style="max-width: 520px;">
+            <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 16px;">Yeni İndirme Ekle</h2>
+            <div style="margin-bottom: 14px;">
+                <label style="display:block; font-size:13px; opacity:0.8; margin-bottom:6px;">Dosya Bağlantısı (URL)</label>
+                <input type="text" class="input-field" id="manual-url" placeholder="https://ornek.com/dosya.zip">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-size:13px; opacity:0.8; margin-bottom:6px;">İndirme Konumu</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" class="input-field" id="manual-save-dir" readonly style="flex:1;">
+                    <button class="btn-secondary" id="browse-save-dir-btn" style="white-space:nowrap; padding: 10px 16px;">📁 Gözat</button>
+                </div>
+            </div>
             <div class="modal-actions">
                 <button class="btn-secondary" id="close-modal-btn">İptal</button>
                 <button class="btn-primary" id="start-manual-btn">İndirmeyi Başlat</button>
@@ -193,7 +203,11 @@
 
             <!-- Step 1: Welcome -->
             <div class="ob-step active" data-step="0" style="text-align:center; max-width:500px; padding:40px;">
-                <div style="font-size:72px; margin-bottom:20px;">📥</div>
+                <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(59,130,246,0.4));">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
                 <h1 style="font-size:32px; font-weight:700; margin-bottom:12px; color: var(--text-main);">Hoş Geldiniz!</h1>
                 <p style="font-size:16px; opacity:0.7; line-height:1.6; margin-bottom:30px;">Voldena-DM, dosyalarınızı güvenli ve hızlı şekilde indirmenizi sağlayan yeni nesil indirme yöneticisine hoş geldiniz.</p>
                 <button class="ob-btn-next" onclick="obNext()">Başlayalım →</button>
@@ -348,7 +362,7 @@
             </div>
             
             <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-                <button onclick="document.getElementById('ext-help-modal').style.display='none'" style="background:linear-gradient(135deg, var(--accent), var(--gradient-2)); color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:600; cursor:pointer;">Anladım, Klasörü Göster</button>
+                <button id="ext-confirm-btn" style="background:var(--accent); color:white; border:none; padding:12px 24px; border-radius:12px; font-weight:600; cursor:pointer;">Anladım, Klasörü Göster</button>
             </div>
         </div>
     </div>

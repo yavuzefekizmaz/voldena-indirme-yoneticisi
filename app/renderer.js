@@ -47,11 +47,28 @@ navItems.forEach(item => {
 // Modal Logic
 const modal = document.getElementById('add-modal');
 const manualUrlInput = document.getElementById('manual-url');
+const manualSaveDirInput = document.getElementById('manual-save-dir');
+const browseSaveDirBtn = document.getElementById('browse-save-dir-btn');
+
+let customSaveDir = null;
 
 document.getElementById('open-modal-btn').addEventListener('click', () => {
     modal.classList.add('active');
     manualUrlInput.focus();
+    if (manualSaveDirInput) {
+        manualSaveDirInput.value = customSaveDir || 'Varsayılan İndirme Klasörü';
+    }
 });
+
+if (browseSaveDirBtn) {
+    browseSaveDirBtn.addEventListener('click', async () => {
+        const selected = await window.electronAPI.selectFolder();
+        if (selected) {
+            customSaveDir = selected;
+            manualSaveDirInput.value = selected;
+        }
+    });
+}
 
 document.getElementById('close-modal-btn').addEventListener('click', () => {
     modal.classList.remove('active');
@@ -62,7 +79,8 @@ document.getElementById('start-manual-btn').addEventListener('click', () => {
     if (url) {
         const connSelect = document.getElementById('conn-limit');
         const connections = connSelect ? parseInt(connSelect.value) : 64;
-        window.electronAPI.startDownload({ url, connections });
+        const saveDir = customSaveDir;
+        window.electronAPI.startDownload({ url, connections, saveDir });
         manualUrlInput.value = '';
         modal.classList.remove('active');
     }
@@ -149,12 +167,26 @@ window.electronAPI.onDownloadPaused((event, data) => {
     }
 });
 
+function checkWelcomeMessage() {
+    const items = document.querySelectorAll('.download-item');
+    const welcome = document.getElementById('welcome-message');
+    if (welcome) {
+        welcome.style.display = items.length === 0 ? 'flex' : 'none';
+    }
+}
+
 // Cancel/Remove Update
 window.electronAPI.onDownloadCancelled((event, data) => {
     const item = document.getElementById(`dl-${data.id}`);
     if (item) {
         item.remove();
+        checkWelcomeMessage();
     }
+});
+
+// Missing File Alert
+window.electronAPI.onFileMissing((event, data) => {
+    alert(`⚠️ Dosya Bulunamadı!\n\n"${data.filename || 'Dosya'}" bilgisayarınızdan silinmiş veya yeri değiştirilmiş olabilir.`);
 });
 
 // Error Updates
@@ -198,13 +230,19 @@ function addDownloadItem(data) {
             </div>
         </div>
         <div class="item-actions">
-            <button class="action-btn pause-btn">⏸️</button>
-            <button class="action-btn cancel-btn">✖️</button>
+            <button class="action-btn folder-btn" title="Dosyanın Bulunduğu Klasörü Aç">📁</button>
+            <button class="action-btn pause-btn" title="Duraklat / Başlat">⏸️</button>
+            <button class="action-btn cancel-btn" title="İndirmeyi Kaldır / Sil">✖️</button>
         </div>
     `;
 
+    const folderBtn = div.querySelector('.folder-btn');
     const pauseBtn = div.querySelector('.pause-btn');
     const cancelBtn = div.querySelector('.cancel-btn');
+
+    folderBtn.addEventListener('click', () => {
+        window.electronAPI.openFolder(data.id);
+    });
 
     pauseBtn.addEventListener('click', () => {
         const currentStatus = div.getAttribute('data-status');
@@ -213,16 +251,20 @@ function addDownloadItem(data) {
         } else if (currentStatus === 'paused') {
             window.electronAPI.resumeDownload(data.id);
             pauseBtn.innerHTML = '⏸️';
+            pauseBtn.title = "Duraklat";
             div.setAttribute('data-status', 'downloading');
         } else if (currentStatus === 'downloading') {
             window.electronAPI.pauseDownload(data.id);
             pauseBtn.innerHTML = '▶️';
+            pauseBtn.title = "Devam Et";
             div.setAttribute('data-status', 'paused');
         }
     });
 
     cancelBtn.addEventListener('click', () => {
         const currentStatus = div.getAttribute('data-status');
+        const titleEl = div.querySelector('.item-title');
+        const realFilename = titleEl ? titleEl.childNodes[0].textContent.trim() : (data.filename || 'Dosya');
         
         const modal = document.getElementById('confirm-modal');
         const title = document.getElementById('confirm-title');
@@ -236,17 +278,17 @@ function addDownloadItem(data) {
         chk.checked = false;
         
         if (currentStatus === 'completed') {
-            title.textContent = 'Dosya Silinsin mi?';
-            desc.textContent = `"${data.filename || 'Dosya'}" indirmeler listesinden kaldırılacak. Bilgisayarınızdaki indirilmiş dosyayı da silmek istiyor musunuz?`;
-            chkContainer.style.display = 'none'; // No checkbox needed
-            okBtn.textContent = 'Evet';
-            cancelBtnModal.textContent = 'Hayır';
+            title.textContent = 'İndirilen Görevi Kaldır';
+            desc.textContent = `"${realFilename}" indirmeler listesinden kaldırılacak.`;
+            chkContainer.style.display = 'none'; // Direct choices in text & buttons
+            okBtn.textContent = 'Evet, Dosyayı da Sil';
+            cancelBtnModal.textContent = 'Hayır, Sadece Listeden Kaldır';
         } else {
             title.textContent = 'İndirmeyi İptal Et';
-            desc.textContent = `"${data.filename || 'Dosya'}" indirmesi iptal edilecek. Listeden kaldırılsın mı?`;
-            chkContainer.style.display = 'flex'; // Show checkbox
-            okBtn.textContent = 'Evet';
-            cancelBtnModal.textContent = 'Hayır';
+            desc.textContent = `"${realFilename}" indirmesi iptal edilerek listeden kaldırılacak.`;
+            chkContainer.style.display = 'flex'; // Show distinct checkbox
+            okBtn.textContent = 'İndirmeyi Kaldır';
+            cancelBtnModal.textContent = 'Vazgeç';
         }
         
         modal.classList.add('active');
@@ -260,26 +302,32 @@ function addDownloadItem(data) {
         newCancel.addEventListener('click', () => {
             modal.classList.remove('active');
             if (currentStatus === 'completed') {
-                // If it's a completed task and they click No, we remove it from list but do NOT delete the file
+                // Remove from UI list but DO NOT delete actual file
                 window.electronAPI.cancelDownload({ id: data.id, deleteFile: false });
                 div.remove();
+                checkWelcomeMessage();
             }
         });
         
         newOk.addEventListener('click', () => {
             modal.classList.remove('active');
             if (currentStatus === 'completed') {
-                // Clicked Yes for completed file: delete task and file
+                // Delete task and actual file
                 window.electronAPI.cancelDownload({ id: data.id, deleteFile: true });
                 div.remove();
+                checkWelcomeMessage();
             } else {
-                // Active/Paused download: cancel task and delete file if chk is checked
+                // Cancel active task and delete file if checkbox checked
                 const deleteFile = chk.checked;
                 window.electronAPI.cancelDownload({ id: data.id, deleteFile: deleteFile });
                 div.remove();
+                checkWelcomeMessage();
             }
         });
     });
+    
+    list.insertBefore(div, list.firstChild);
+}
     
     list.insertBefore(div, list.firstChild);
 }
@@ -365,16 +413,27 @@ window.electronAPI.onDownloadCompleted((event, data) => {
 });
 
 // Extension helper function
+let pendingExtensionBrowser = null;
 window.installAndShowHelp = (browser) => {
+    pendingExtensionBrowser = browser;
     const modal = document.getElementById('ext-help-modal');
     if (modal) {
         modal.style.display = 'flex';
     }
-    window.electronAPI.installExtension(browser);
 };
 
 // Load paused downloads on startup
 document.addEventListener('DOMContentLoaded', () => {
+    // Extension confirm button
+    const extConfirmBtn = document.getElementById('ext-confirm-btn');
+    if (extConfirmBtn) {
+        extConfirmBtn.addEventListener('click', () => {
+            if (pendingExtensionBrowser) {
+                window.electronAPI.installExtension(pendingExtensionBrowser);
+            }
+            document.getElementById('ext-help-modal').style.display = 'none';
+        });
+    }
     // Settings Logic - conn-limit
     const connLimitSelect = document.getElementById('conn-limit');
     if (connLimitSelect) {

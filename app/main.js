@@ -191,10 +191,35 @@ ipcMain.on('cancel-download', (event, arg) => {
     downloader.cancel(id, deleteFile);
 });
 
+ipcMain.handle('select-folder', async () => {
+    const { dialog } = require('electron');
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openDirectory']
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+        return result.filePaths[0];
+    }
+    return null;
+});
+
+ipcMain.on('open-folder', (event, id) => {
+    const dl = downloader.downloads.get(id);
+    if (dl && dl.destPath && fs.existsSync(dl.destPath)) {
+        shell.showItemInFolder(dl.destPath);
+    } else {
+        shell.openPath(downloader.downloadDir);
+    }
+});
+
 ipcMain.on('open-file', (event, id) => {
     const dl = downloader.downloads.get(id);
     if (dl && dl.destPath && fs.existsSync(dl.destPath)) {
         shell.openPath(dl.destPath);
+    } else {
+        const filename = dl ? (dl.filename || 'Dosya') : 'Dosya';
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('file-missing', { filename });
+        }
     }
 });
 
