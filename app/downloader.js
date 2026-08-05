@@ -77,6 +77,7 @@ class VoldenaDownloader {
                 connections: connectionLimit,
                 streams: [],
                 chunks: [],
+                requests: [],
                 lastDownloaded: 0,
                 lastTime: Date.now(),
                 speed: 0,
@@ -92,6 +93,7 @@ class VoldenaDownloader {
             dlState.status = 'connecting';
             dlState.window = window;
             dlState.streams = [];
+            dlState.requests = [];
         }
 
         try {
@@ -285,14 +287,18 @@ class VoldenaDownloader {
                     resolve();
                 });
             });
-            req.on('error', reject);
+            dlState.requests.push(req);
+            req.on('error', (err) => {
+                if (dlState.status !== 'downloading') return resolve();
+                reject(err);
+            });
         });
     }
 
     async downloadSingleStream(dlState) {
         return new Promise((resolve, reject) => {
             const client = dlState.finalUrl.startsWith('https') ? https : http;
-            client.get(dlState.finalUrl, (res) => {
+            const req = client.get(dlState.finalUrl, (res) => {
                 if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
                     dlState.finalUrl = res.headers.location;
                     return resolve(this.downloadSingleStream(dlState));
@@ -338,7 +344,12 @@ class VoldenaDownloader {
                     }
                     resolve();
                 });
-            }).on('error', reject);
+            });
+            dlState.requests.push(req);
+            req.on('error', (err) => {
+                if (dlState.status !== 'downloading') return resolve();
+                reject(err);
+            });
         });
     }
 
@@ -392,6 +403,15 @@ class VoldenaDownloader {
         if (this.downloads.has(id)) {
             const dl = this.downloads.get(id);
             dl.status = 'paused';
+            
+            // Abort active HTTP requests
+            if (dl.requests) {
+                for (const req of dl.requests) {
+                    if (req && !req.destroyed) req.destroy();
+                }
+                dl.requests = [];
+            }
+            
             for (const stream of dl.streams) {
                 if (stream) stream.end();
             }
@@ -419,12 +439,27 @@ class VoldenaDownloader {
         if (this.downloads.has(id)) {
             const dl = this.downloads.get(id);
             dl.status = 'cancelled';
+            
+            // Abort active HTTP requests
+            if (dl.requests) {
+                for (const req of dl.requests) {
+                    if (req && !req.destroyed) req.destroy();
+                }
+                dl.requests = [];
+            }
+            
             for (const stream of dl.streams) {
                 if (stream) stream.end();
             }
             dl.streams = [];
-            try { if (dl.destPath && fs.existsSync(dl.destPath)) fs.unlinkSync(dl.destPath); } catch(e) {}
-            try { if (dl.statePath && fs.existsSync(dl.statePath)) fs.unlinkSync(dl.statePath); } catch(e) {}
+            
+            // Delete files after a short delay to ensure stream handles are fully closed
+            const destPath = dl.destPath;
+            const statePath = dl.statePath;
+            setTimeout(() => {
+                try { if (destPath && fs.existsSync(destPath)) fs.unlinkSync(destPath); } catch(e) {}
+                try { if (statePath && fs.existsSync(statePath)) fs.unlinkSync(statePath); } catch(e) {}
+            }, 100);
             
             if (dl.window) {
                 dl.window.webContents.send('download-cancelled', { id: dl.id });

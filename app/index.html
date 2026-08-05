@@ -154,7 +154,18 @@
                         <div id="risk-tooltip" style="display: none; margin-top: 10px; padding: 12px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; font-size: 13px; line-height: 1.5;">
                             ⚠️ <strong>256 Parça Uyarısı:</strong> Bu kadar çok eşzamanlı bağlantı, sunucular tarafından DDoS saldırısı olarak algılanabilir. IP adresiniz geçici veya kalıcı olarak engellenebilir. Sadece güvendiğiniz ve hız sınırı olmayan sunucularda kullanın.
                         </div>
-                        <h3 style="margin-top: 25px;">Uygulama</h3>
+                        <h3 style="margin-top: 25px;">Genel Ayarlar</h3>
+                        <div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-bottom: 20px;">
+                            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer;">
+                                <input type="checkbox" id="setting-autostart" style="width: 18px; height: 18px; cursor: pointer;">
+                                Windows açılışında otomatik başla
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer;">
+                                <input type="checkbox" id="setting-dlwindow" style="width: 18px; height: 18px; cursor: pointer;">
+                                İndirme başlarken ayrı ilerleme penceresi aç
+                            </label>
+                        </div>
+                        <h3 style="margin-top: 15px;">Uygulama Tanıtımı</h3>
                         <button class="btn-secondary" id="show-tour-btn" style="width: 250px;">🎓 Tanıtımı Tekrar Göster</button>
                     </div>
                 </div>
@@ -177,16 +188,15 @@
     <script src="renderer.js"></script>
 
     <!-- Onboarding Wizard Overlay -->
-    <div id="onboarding-overlay" style="display:none; position:fixed; inset:0; z-index:9999; background: #0a0a1e; overflow: hidden;">
+    <div id="onboarding-overlay" style="display:none; position:fixed; inset:0; z-index:9999; background: #080c14; overflow-y: auto; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
         <!-- Animated Background -->
         <div style="position:absolute; inset:0; overflow:hidden; pointer-events:none;">
-            <div class="ob-blob" style="position:absolute; width:300px; height:300px; border-radius:50%; background: radial-gradient(circle, rgba(167,139,250,0.3), transparent); top:-50px; left:-50px; animation: obFloat 8s ease-in-out infinite;"></div>
-            <div class="ob-blob" style="position:absolute; width:250px; height:250px; border-radius:50%; background: radial-gradient(circle, rgba(96,165,250,0.2), transparent); bottom:-50px; right:-50px; animation: obFloat 10s ease-in-out infinite reverse;"></div>
-            <div class="ob-blob" style="position:absolute; width:200px; height:200px; border-radius:50%; background: radial-gradient(circle, rgba(139,92,246,0.15), transparent); top:50%; left:50%; transform:translate(-50%,-50%); animation: obFloat 12s ease-in-out infinite;"></div>
+            <div class="ob-blob" style="position:absolute; width:300px; height:300px; border-radius:50%; background: radial-gradient(circle, rgba(15, 23, 42, 0.6), transparent); top:-50px; left:-50px; animation: obFloat 8s ease-in-out infinite;"></div>
+            <div class="ob-blob" style="position:absolute; width:250px; height:250px; border-radius:50%; background: radial-gradient(circle, rgba(30, 41, 59, 0.5), transparent); bottom:-50px; right:-50px; animation: obFloat 10s ease-in-out infinite reverse;"></div>
         </div>
 
         <!-- Steps Container -->
-        <div id="onboarding-steps" style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+        <div id="onboarding-steps" style="position:relative; width:100%; display:flex; align-items:center; justify-content:center;">
 
             <!-- Step 1: Welcome -->
             <div class="ob-step active" data-step="0" style="text-align:center; max-width:500px; padding:40px;">
@@ -296,7 +306,7 @@
         </div>
 
         <!-- Progress Dots -->
-        <div id="ob-dots" style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); display:flex; gap:8px;">
+        <div id="ob-dots" style="margin-top:20px; display:flex; gap:8px; justify-content:center; z-index:1000;">
             <span class="ob-dot active"></span>
             <span class="ob-dot"></span>
             <span class="ob-dot"></span>

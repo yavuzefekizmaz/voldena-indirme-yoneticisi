@@ -140,6 +140,15 @@ ipcMain.on('set-dlwindow', (event, value) => {
     console.log('Ayrı pencere modu:', useSeparateWindow);
 });
 
+ipcMain.on('set-autostart', (event, value) => {
+    const openAtLogin = (value === 'yes');
+    app.setLoginItemSettings({
+        openAtLogin: openAtLogin,
+        path: app.getPath('exe')
+    });
+    console.log('AutoStart setting:', openAtLogin);
+});
+
 function createDownloadWindow(url) {
     const dlWin = new BrowserWindow({
         width: 420,

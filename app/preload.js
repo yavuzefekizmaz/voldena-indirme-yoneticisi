@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   startDownload: (data) => ipcRenderer.send('start-download', data),
   setConnections: (value) => ipcRenderer.send('set-connections', value),
   setDlwindow: (value) => ipcRenderer.send('set-dlwindow', value),
+  setAutoStart: (value) => ipcRenderer.send('set-autostart', value),
   pauseDownload: (id) => ipcRenderer.send('pause-download', id),
   resumeDownload: (id) => ipcRenderer.send('resume-download', id),
   cancelDownload: (id) => ipcRenderer.send('cancel-download', id),

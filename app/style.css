@@ -1,23 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --bg-color: #080c14;
-    --glass-bg: rgba(13, 18, 30, 0.85);
-    --glass-border: rgba(255, 255, 255, 0.05);
-    --glass-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
-    --glass-highlight: rgba(255, 255, 255, 0.03);
-    --text-main: #f1f5f9;
+    --bg-color: #04060b;
+    --glass-bg: rgba(8, 12, 22, 0.9);
+    --glass-border: rgba(255, 255, 255, 0.03);
+    --glass-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.8);
+    --glass-highlight: rgba(255, 255, 255, 0.02);
+    --text-main: #f8fafc;
     --text-muted: #64748b;
     --accent: #3b82f6;
     --accent-hover: #60a5fa;
-    --gradient-1: #2563eb;
-    --gradient-2: #1d4ed8;
-    --blob-1: rgba(15, 23, 42, 0.8);
-    --blob-2: rgba(30, 41, 59, 0.8);
-    --blob-3: rgba(15, 23, 42, 0.6);
-    --card-bg: rgba(31, 41, 55, 0.45);
-    --card-border: rgba(255, 255, 255, 0.06);
-    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    --gradient-1: #1d4ed8;
+    --gradient-2: #1e3a8a;
+    --blob-1: rgba(15, 23, 42, 0.95);
+    --blob-2: rgba(30, 41, 59, 0.9);
+    --blob-3: rgba(15, 23, 42, 0.95);
+    --card-bg: rgba(15, 23, 42, 0.6);
+    --card-border: rgba(255, 255, 255, 0.04);
+    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="light"] {

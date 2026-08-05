@@ -332,10 +332,42 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Ayrı pencere ayarını senkronize et
-    const savedDlWindow = localStorage.getItem('voldena-dlwindow');
-    if (savedDlWindow) {
-        window.electronAPI.setDlwindow(savedDlWindow);
+    // Ayrı pencere ayarını senkronize et ve checkbox bağla
+    const dlwindowCheckbox = document.getElementById('setting-dlwindow');
+    if (dlwindowCheckbox) {
+        const savedDlWindow = localStorage.getItem('voldena-dlwindow') === 'yes';
+        dlwindowCheckbox.checked = savedDlWindow;
+        window.electronAPI.setDlwindow(savedDlWindow ? 'yes' : 'no');
+        
+        dlwindowCheckbox.addEventListener('change', (e) => {
+            const val = e.target.checked ? 'yes' : 'no';
+            localStorage.setItem('voldena-dlwindow', val);
+            window.electronAPI.setDlwindow(val);
+        });
+    } else {
+        const savedDlWindow = localStorage.getItem('voldena-dlwindow');
+        if (savedDlWindow) {
+            window.electronAPI.setDlwindow(savedDlWindow);
+        }
+    }
+
+    // Windows başlangıç ayarını senkronize et ve checkbox bağla
+    const autostartCheckbox = document.getElementById('setting-autostart');
+    if (autostartCheckbox) {
+        const savedAutostart = localStorage.getItem('voldena-autostart') === 'yes';
+        autostartCheckbox.checked = savedAutostart;
+        window.electronAPI.setAutoStart(savedAutostart ? 'yes' : 'no');
+        
+        autostartCheckbox.addEventListener('change', (e) => {
+            const val = e.target.checked ? 'yes' : 'no';
+            localStorage.setItem('voldena-autostart', val);
+            window.electronAPI.setAutoStart(val);
+        });
+    } else {
+        const savedAutostart = localStorage.getItem('voldena-autostart');
+        if (savedAutostart) {
+            window.electronAPI.setAutoStart(savedAutostart);
+        }
     }
 
     // Load interrupted downloads
@@ -426,8 +458,21 @@ window.obFinish = () => {
     const autostart = document.querySelector('input[name="autostart"]:checked');
     const dlwindow = document.querySelector('input[name="dlwindow"]:checked');
     
-    if (autostart) localStorage.setItem('voldena-autostart', autostart.value);
-    if (dlwindow) localStorage.setItem('voldena-dlwindow', dlwindow.value);
+    const autostartVal = autostart ? autostart.value : 'no';
+    const dlwindowVal = dlwindow ? dlwindow.value : 'no';
+    
+    localStorage.setItem('voldena-autostart', autostartVal);
+    localStorage.setItem('voldena-dlwindow', dlwindowVal);
+    
+    // Update settings checkboxes dynamically
+    const aCheck = document.getElementById('setting-autostart');
+    if (aCheck) aCheck.checked = (autostartVal === 'yes');
+    const dCheck = document.getElementById('setting-dlwindow');
+    if (dCheck) dCheck.checked = (dlwindowVal === 'yes');
+    
+    // Send to main process immediately
+    window.electronAPI.setAutoStart(autostartVal);
+    window.electronAPI.setDlwindow(dlwindowVal);
     
     localStorage.setItem('voldena-onboarding-done', 'true');
     
