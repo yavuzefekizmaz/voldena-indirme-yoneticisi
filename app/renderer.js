@@ -528,7 +528,9 @@ const obTotalSteps = 7;
 function showOnboarding() {
     obCurrentStep = 0;
     const overlay = document.getElementById('onboarding-overlay');
-    overlay.style.display = 'block';
+    overlay.style.display = 'flex';
+    // Save onboarding completion immediately on first display so it never auto-opens again
+    localStorage.setItem('voldena-onboarding-done', 'true');
     updateObStep();
 }
 
@@ -552,18 +554,13 @@ function updateObStep() {
 }
 
 window.obNext = () => {
-    const currentStep = document.querySelector(`.ob-step[data-step="${obCurrentStep}"]`);
-    currentStep.classList.add('exiting');
-    currentStep.classList.remove('active');
-    
-    setTimeout(() => {
+    const steps = document.querySelectorAll('.ob-step');
+    if (obCurrentStep < steps.length - 1) {
         obCurrentStep++;
-        if (obCurrentStep >= obTotalSteps) {
-            obFinish();
-        } else {
-            updateObStep();
-        }
-    }, 200);
+        updateObStep();
+    } else {
+        obFinish();
+    }
 };
 
 window.obSkip = () => {
