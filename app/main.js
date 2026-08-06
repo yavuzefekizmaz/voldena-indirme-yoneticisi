@@ -22,7 +22,8 @@ function createWindow() {
       contextIsolation: true
     },
     frame: false,
-    backgroundColor: '#04060b'
+    backgroundColor: '#04060b',
+    icon: path.join(__dirname, 'icon.png')
   });
 
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
@@ -150,14 +151,15 @@ ipcMain.on('set-autostart', (event, value) => {
 
 function createDownloadWindow(url) {
     const dlWin = new BrowserWindow({
-        width: 420,
-        height: 140,
+        width: 460,
+        height: 260,
         frame: false,
         resizable: false,
         alwaysOnTop: true,
         skipTaskbar: false,
         transparent: false,
         backgroundColor: '#0b1120',
+        icon: path.join(__dirname, 'icon.png'),
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -265,6 +267,10 @@ if (!gotTheLock) {
           const data = JSON.parse(body);
           // Eklentiden gelen indirmelerde de kullanıcının seçtiği kanal sayısını kullan
           downloader.startDownload(data.url, data.filename, mainWindow, null, currentConnections);
+          
+          if (useSeparateWindow) {
+              createDownloadWindow(data.url);
+          }
           res.writeHead(200);
           res.end('OK');
         } catch (e) {

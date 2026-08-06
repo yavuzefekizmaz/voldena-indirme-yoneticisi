@@ -68,6 +68,7 @@ class VoldenaDownloader {
         // Eğer zaten devam eden bir indirmeyse sıfırlama, devam et
         let dlState = this.downloads.get(id);
         
+        let isResumeDirect = false;
         if (!dlState) {
             dlState = {
                 id, url, filename, window,
@@ -94,20 +95,32 @@ class VoldenaDownloader {
             dlState.window = window;
             dlState.streams = [];
             dlState.requests = [];
+            if (dlState.total > 0 && dlState.chunks.length > 0) {
+                isResumeDirect = true;
+            }
         }
 
         try {
-            const headersInfo = await this.getFileInfo(url);
-            dlState.total = headersInfo.size;
-            dlState.finalUrl = headersInfo.finalUrl;
-            const acceptsRanges = headersInfo.acceptsRanges;
-            
-            let nameFromUrl = headersInfo.finalUrl.split('?')[0].split('/').pop();
-            if (!nameFromUrl || nameFromUrl === '') nameFromUrl = `file_${id}.bin`;
-            const finalName = filename || nameFromUrl;
-            const destPath = path.join(this.downloadDir, finalName);
-            dlState.destPath = destPath;
-            dlState.filename = finalName;
+            let acceptsRanges = true;
+            let destPath = dlState.destPath;
+            let finalName = dlState.filename;
+
+            if (!isResumeDirect) {
+                const headersInfo = await this.getFileInfo(url);
+                dlState.total = headersInfo.size;
+                dlState.finalUrl = headersInfo.finalUrl;
+                acceptsRanges = headersInfo.acceptsRanges;
+                
+                let nameFromUrl = headersInfo.finalUrl.split('?')[0].split('/').pop();
+                if (!nameFromUrl || nameFromUrl === '') nameFromUrl = `file_${id}.bin`;
+                finalName = filename || nameFromUrl;
+                destPath = path.join(this.downloadDir, finalName);
+                dlState.destPath = destPath;
+                dlState.filename = finalName;
+            } else {
+                // Keep existing metadata, ranges are supported since chunks exist
+                acceptsRanges = true;
+            }
 
             // Update UI with real filename
             if (dlState.window) {
@@ -117,10 +130,9 @@ class VoldenaDownloader {
             this.sendToMiniWindow(dlState.url, 'dl-info', { filename: finalName });
 
             if (dlState.total > 0 && acceptsRanges) {
-                // Pre-allocate file if it's new
                 if (dlState.chunks.length === 0) {
-                    fs.writeFileSync(destPath, '');
-                    fs.truncateSync(destPath, dlState.total);
+                    await fs.promises.writeFile(destPath, '');
+                    await fs.promises.truncate(destPath, dlState.total);
                     
                     // Create chunk definitions
                     const numChunks = dlState.connections;
@@ -199,11 +211,13 @@ class VoldenaDownloader {
                         const urlObj = new URL(url);
                         nextUrl = urlObj.origin + (nextUrl.startsWith('/') ? '' : '/') + nextUrl;
                     }
-                    return resolve(this.getFileInfo(nextUrl));
+                    this.getFileInfo(nextUrl).then(resolve).catch(reject);
+                    return;
                 }
 
                 if (res.statusCode >= 400) {
-                    return resolve(this.getFileInfoViaGet(url));
+                    this.getFileInfoViaGet(url).then(resolve).catch(reject);
+                    return;
                 }
 
                 resolve({
@@ -213,8 +227,13 @@ class VoldenaDownloader {
                 });
             });
 
-            req.on('error', (err) => resolve(this.getFileInfoViaGet(url)));
-            req.on('timeout', () => { req.destroy(); resolve(this.getFileInfoViaGet(url)); });
+            req.on('error', (err) => {
+                this.getFileInfoViaGet(url).then(resolve).catch(reject);
+            });
+            req.on('timeout', () => {
+                req.destroy();
+                this.getFileInfoViaGet(url).then(resolve).catch(reject);
+            });
             req.end();
         });
     }
@@ -236,7 +255,8 @@ class VoldenaDownloader {
                         const urlObj = new URL(url);
                         nextUrl = urlObj.origin + (nextUrl.startsWith('/') ? '' : '/') + nextUrl;
                     }
-                    return resolve(this.getFileInfoViaGet(nextUrl));
+                    this.getFileInfoViaGet(nextUrl).then(resolve).catch(reject);
+                    return;
                 }
                 resolve({
                     size: parseInt(res.headers['content-length'] || '0', 10),

@@ -378,6 +378,15 @@ document.getElementById('clear-history-btn').addEventListener('click', () => {
     renderHistory();
 });
 
+// Global Completion Alert State
+let activeCompleteId = null;
+function showCompletionAlert(id, filename) {
+    activeCompleteId = id;
+    const alertFilename = document.getElementById('complete-alert-filename');
+    if (alertFilename) alertFilename.textContent = filename || 'Dosya';
+    showOverlay('completion-alert-modal');
+}
+
 // Listen to download completed event
 window.electronAPI.onDownloadCompleted((event, data) => {
     let history = JSON.parse(localStorage.getItem('voldena-history') || '[]');
@@ -407,6 +416,12 @@ window.electronAPI.onDownloadCompleted((event, data) => {
             fill.style.background = 'linear-gradient(90deg, #22c55e, #16a34a)';
         }
     }
+
+    // Ayrı pencere modu kapalıysa ek uyarı modalını aç
+    const useSeparateWin = localStorage.getItem('voldena-dlwindow') === 'yes';
+    if (!useSeparateWin) {
+        showCompletionAlert(data.id, data.filename);
+    }
 });
 
 // ============ Overlay Helpers ============
@@ -432,6 +447,42 @@ window.installAndShowHelp = (browser) => {
 
 // Load paused downloads on startup
 document.addEventListener('DOMContentLoaded', () => {
+    // Completion Alert Modal Button Bindings
+    const alertOpenBtn = document.getElementById('alert-open-btn');
+    if (alertOpenBtn) {
+        alertOpenBtn.addEventListener('click', () => {
+            if (activeCompleteId) window.electronAPI.openFile(activeCompleteId);
+            hideOverlay('completion-alert-modal');
+        });
+    }
+    const alertFolderBtn = document.getElementById('alert-folder-btn');
+    if (alertFolderBtn) {
+        alertFolderBtn.addEventListener('click', () => {
+            if (activeCompleteId) window.electronAPI.openFolder(activeCompleteId);
+            hideOverlay('completion-alert-modal');
+        });
+    }
+    const alertDeleteBtn = document.getElementById('alert-delete-btn');
+    if (alertDeleteBtn) {
+        alertDeleteBtn.addEventListener('click', () => {
+            if (activeCompleteId) {
+                window.electronAPI.cancelDownload({ id: activeCompleteId, deleteFile: true });
+                const item = document.getElementById(`dl-${activeCompleteId}`);
+                if (item) {
+                    item.remove();
+                    checkWelcomeMessage();
+                }
+            }
+            hideOverlay('completion-alert-modal');
+        });
+    }
+    const alertIgnoreBtn = document.getElementById('alert-ignore-btn');
+    if (alertIgnoreBtn) {
+        alertIgnoreBtn.addEventListener('click', () => {
+            hideOverlay('completion-alert-modal');
+        });
+    }
+
     // Extension confirm button
     const extConfirmBtn = document.getElementById('ext-confirm-btn');
     if (extConfirmBtn) {

@@ -3,6 +3,7 @@
 :root {
     --bg-color: #04060b;
     --glass-bg: rgba(8, 12, 22, 0.9);
+    --sidebar-bg: rgba(6, 9, 17, 0.95);
     --glass-border: rgba(255, 255, 255, 0.03);
     --glass-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.8);
     --glass-highlight: rgba(255, 255, 255, 0.02);
@@ -21,20 +22,21 @@
 }
 
 [data-theme="light"] {
-    --bg-color: #f8fafc;
+    --bg-color: #f1f5f9;
     --glass-bg: #ffffff;
+    --sidebar-bg: #e2e8f0;
     --glass-border: rgba(15, 23, 42, 0.08);
     --glass-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
-    --glass-highlight: #f1f5f9;
+    --glass-highlight: #f8fafc;
     --text-main: #0f172a;
-    --text-muted: #64748b;
+    --text-muted: #475569;
     --accent: #2563eb;
     --accent-hover: #1d4ed8;
     --gradient-1: #3b82f6;
     --gradient-2: #1d4ed8;
-    --blob-1: rgba(186, 230, 253, 0.4);
-    --blob-2: rgba(224, 242, 254, 0.4);
-    --blob-3: rgba(241, 245, 249, 0.2);
+    --blob-1: rgba(186, 230, 253, 0.2);
+    --blob-2: rgba(224, 242, 254, 0.2);
+    --blob-3: rgba(241, 245, 249, 0.1);
     --card-bg: #ffffff;
     --card-border: rgba(15, 23, 42, 0.08);
     --card-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
@@ -212,6 +214,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px 10px;
+    background: var(--sidebar-bg);
     border-right: 1px solid var(--glass-border);
     margin: 10px 0 10px 10px;
     border-radius: 20px;

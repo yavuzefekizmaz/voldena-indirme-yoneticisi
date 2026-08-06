@@ -14,7 +14,8 @@
       "output": "dist"
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": ["nsis", "portable"],
+      "icon": "app/icon.png"
     },
     "portable": {
       "artifactName": "Voldena-DM-Portable.${ext}"
@@ -26,7 +27,7 @@
     }
   },
   "keywords": [],
-  "author": "",
+  "author": "yavuzefekizmaz",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
