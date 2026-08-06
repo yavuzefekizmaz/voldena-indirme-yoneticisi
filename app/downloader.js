@@ -304,7 +304,21 @@ class VoldenaDownloader {
             const req = client.get(dlState.finalUrl, { headers: { Range: `bytes=${byteStart}-${byteEnd}` } }, (res) => {
                 if (dlState.status !== 'downloading') return resolve();
                 
+                // Eğer dosya silinmişse, çökmesini önlemek için otomatik yeniden oluştur ve boyutu genişlet
+                if (!fs.existsSync(dlState.destPath)) {
+                    try {
+                        fs.writeFileSync(dlState.destPath, '');
+                        fs.truncateSync(dlState.destPath, dlState.total);
+                    } catch (e) {
+                        return reject(new Error('Dosya oluşturulamadı: ' + e.message));
+                    }
+                }
+
                 const fileStream = fs.createWriteStream(dlState.destPath, { flags: 'r+', start: byteStart });
+                fileStream.on('error', (err) => {
+                    if (dlState.status !== 'downloading') return resolve();
+                    reject(err);
+                });
                 dlState.streams.push(fileStream);
 
                 res.on('data', (dataChunk) => {
@@ -344,6 +358,10 @@ class VoldenaDownloader {
                     return resolve(this.downloadSingleStream(dlState));
                 }
                 const fileStream = fs.createWriteStream(dlState.destPath);
+                fileStream.on('error', (err) => {
+                    if (dlState.status !== 'downloading') return resolve();
+                    reject(err);
+                });
                 dlState.streams.push(fileStream);
 
                 res.on('data', (chunk) => {
