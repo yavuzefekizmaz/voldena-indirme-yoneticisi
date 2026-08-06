@@ -122,11 +122,12 @@ ipcMain.handle('get-all-downloads', () => {
 
 ipcMain.on('start-download', (event, data) => {
     const conns = data.connections || currentConnections;
-    downloader.startDownload(data.url, data.filename, mainWindow, null, conns);
+    const id = data.id || Date.now().toString();
+    downloader.startDownload(data.url, data.filename, mainWindow, id, conns);
     
     // Ayrı pencere modu aktifse mini pencere aç
     if (useSeparateWindow) {
-        createDownloadWindow(data.url);
+        createDownloadWindow(data.url, id, data.filename);
     }
 });
 
@@ -149,7 +150,7 @@ ipcMain.on('set-autostart', (event, value) => {
     console.log('AutoStart setting:', openAtLogin);
 });
 
-function createDownloadWindow(url) {
+function createDownloadWindow(url, id, filename) {
     const dlWin = new BrowserWindow({
         width: 460,
         height: 260,
@@ -166,6 +167,12 @@ function createDownloadWindow(url) {
         }
     });
     dlWin.loadFile(path.join(__dirname, 'download_window.html'));
+    
+    // did-finish-load tetiklendiğinde başlangıç bilgilerini güvenli şekilde gönder
+    dlWin.webContents.on('did-finish-load', () => {
+        dlWin.webContents.send('dl-info', { id, url, filename });
+    });
+
     downloadWindows.set(url, dlWin);
     dlWin.on('closed', () => downloadWindows.delete(url));
 }
@@ -265,11 +272,12 @@ if (!gotTheLock) {
       req.on('end', () => {
         try {
           const data = JSON.parse(body);
+          const id = Date.now().toString();
           // Eklentiden gelen indirmelerde de kullanıcının seçtiği kanal sayısını kullan
-          downloader.startDownload(data.url, data.filename, mainWindow, null, currentConnections);
+          downloader.startDownload(data.url, data.filename, mainWindow, id, currentConnections);
           
           if (useSeparateWindow) {
-              createDownloadWindow(data.url);
+              createDownloadWindow(data.url, id, data.filename);
           }
           res.writeHead(200);
           res.end('OK');

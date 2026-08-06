@@ -384,7 +384,8 @@ function showCompletionAlert(id, filename) {
     activeCompleteId = id;
     const alertFilename = document.getElementById('complete-alert-filename');
     if (alertFilename) alertFilename.textContent = filename || 'Dosya';
-    showOverlay('completion-alert-modal');
+    const modal = document.getElementById('completion-alert-modal');
+    if (modal) modal.classList.add('active');
 }
 
 // Listen to download completed event
@@ -448,18 +449,19 @@ window.installAndShowHelp = (browser) => {
 // Load paused downloads on startup
 document.addEventListener('DOMContentLoaded', () => {
     // Completion Alert Modal Button Bindings
+    const alertModal = document.getElementById('completion-alert-modal');
     const alertOpenBtn = document.getElementById('alert-open-btn');
     if (alertOpenBtn) {
         alertOpenBtn.addEventListener('click', () => {
             if (activeCompleteId) window.electronAPI.openFile(activeCompleteId);
-            hideOverlay('completion-alert-modal');
+            if (alertModal) alertModal.classList.remove('active');
         });
     }
     const alertFolderBtn = document.getElementById('alert-folder-btn');
     if (alertFolderBtn) {
         alertFolderBtn.addEventListener('click', () => {
             if (activeCompleteId) window.electronAPI.openFolder(activeCompleteId);
-            hideOverlay('completion-alert-modal');
+            if (alertModal) alertModal.classList.remove('active');
         });
     }
     const alertDeleteBtn = document.getElementById('alert-delete-btn');
@@ -473,13 +475,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     checkWelcomeMessage();
                 }
             }
-            hideOverlay('completion-alert-modal');
+            if (alertModal) alertModal.classList.remove('active');
         });
     }
     const alertIgnoreBtn = document.getElementById('alert-ignore-btn');
     if (alertIgnoreBtn) {
         alertIgnoreBtn.addEventListener('click', () => {
-            hideOverlay('completion-alert-modal');
+            if (alertModal) alertModal.classList.remove('active');
         });
     }
 

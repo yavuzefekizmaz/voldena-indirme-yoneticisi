@@ -18,6 +18,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+// Set to track URLs initiated by the extension itself to prevent infinite loops
+const extensionInitiatedUrls = new Set();
+
 // ====== TAM İNDİRME YAKALAMA ======
 // chrome.downloads.onDeterminingFilename ile indirmeyi yakala
 // Bu, onCreated'dan DAHA güvenilirdir
@@ -33,6 +36,13 @@ chrome.downloads.onCreated.addListener((downloadItem) => {
       url.startsWith('opera') || 
       url.startsWith('edge') ||
       url.startsWith('about:')) {
+    return;
+  }
+
+  // Eklentinin kendisi tarafından başlatılan indirmeyi yakalama (tarayıcının kendisinin indirmesi için)
+  if (extensionInitiatedUrls.has(url)) {
+    extensionInitiatedUrls.delete(url);
+    console.log("Eklenti tarafından başlatılan indirme yakalanmadı, doğrudan indiriliyor:", url);
     return;
   }
 
@@ -65,7 +75,8 @@ function sendToDesktop(url, filename, referrer, fileSize) {
   .then(data => console.log("Voldena-DM'e gönderildi:", data))
   .catch(err => {
     console.error("Voldena-DM çalışmıyor:", err);
-    // Uygulama çalışmıyorsa tarayıcı kendi indirsin
+    // Uygulama çalışmıyorsa sonsuz döngü olmaması için URL'i sete ekle ve tarayıcıya kendi indirt
+    extensionInitiatedUrls.add(url);
     chrome.downloads.download({ url: url });
   });
 }

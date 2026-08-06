@@ -120,6 +120,8 @@ class VoldenaDownloader {
             } else {
                 // Keep existing metadata, ranges are supported since chunks exist
                 acceptsRanges = true;
+                // Recalculate downloaded size to match actual chunk progress
+                dlState.downloaded = dlState.chunks.reduce((acc, chunk) => acc + chunk.current, 0);
             }
 
             // Update UI with real filename
@@ -127,7 +129,7 @@ class VoldenaDownloader {
                 dlState.window.webContents.send('download-filename', { id: dlState.id, filename: finalName, connections: dlState.connections });
             }
             // Mini pencereye de dosya adını gönder
-            this.sendToMiniWindow(dlState.url, 'dl-info', { filename: finalName });
+            this.sendToMiniWindow(dlState.url, 'dl-info', { id: dlState.id, filename: finalName });
 
             if (dlState.total > 0 && acceptsRanges) {
                 if (dlState.chunks.length === 0) {
@@ -190,6 +192,23 @@ class VoldenaDownloader {
             console.error('Download error:', err);
             if(dlState.status !== 'cancelled' && dlState.status !== 'paused') {
                 dlState.status = 'error';
+                // Abort active requests and close streams to release locks
+                if (dlState.requests) {
+                    for (const req of dlState.requests) {
+                        if (req && !req.destroyed) {
+                            try { req.destroy(); } catch(e) {}
+                        }
+                    }
+                    dlState.requests = [];
+                }
+                if (dlState.streams) {
+                    for (const stream of dlState.streams) {
+                        if (stream && !stream.destroyed) {
+                            try { stream.destroy(); } catch(e) {}
+                        }
+                    }
+                    dlState.streams = [];
+                }
                 this.reportError(dlState, err.message);
             }
         }
