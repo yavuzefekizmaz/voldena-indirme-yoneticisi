@@ -10,6 +10,7 @@
   "build": {
     "appId": "com.voldena.dm",
     "productName": "Voldena-DM",
+    "compression": "maximum",
     "directories": {
       "output": "dist"
     },
